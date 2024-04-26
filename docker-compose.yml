@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nestjs:
     container_name: nestjs-backend
