@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
-import { User, UserSchema } from '../schemas/user';
-import { Media, MediaSchema } from '../schemas/Media';
-import { View, ViewSchema } from '../schemas/view';
-import { AwsModule } from '../aws/aws.module';
+import { User, UserSchema } from 'src/schemas/user';
+import { Media, MediaSchema } from 'src/schemas/media';
+import { View, ViewSchema } from 'src/schemas/view';
+import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
   imports: [

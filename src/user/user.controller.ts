@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from '../schemas/user';
-import { ChangeNicknameDto } from '../dtos/change-nickname';
-import { Public } from '../decorators/public';
+import { User } from 'src/schemas/user';
+import { ChangeNicknameDto } from 'src/dtos/change-nickname';
+import { Public } from 'src/decorators/public';
 
 @Controller('user')
 export class UserController {

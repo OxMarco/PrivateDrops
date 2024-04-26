@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AwsService } from '../aws/aws.service';
-import { Media } from '../schemas/media';
-import { User } from '../schemas/user';
-import { View } from '../schemas/view';
+import { AwsService } from 'src/aws/aws.service';
+import { Media } from 'src/schemas/media';
+import { User } from 'src/schemas/user';
+import { View } from 'src/schemas/view';
 
 @Injectable()
 export class AdminService {
