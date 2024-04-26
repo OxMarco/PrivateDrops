@@ -17,7 +17,7 @@ import { AdminModule } from './admin/admin.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.local',
+      envFilePath: '.env',
       isGlobal: true,
     }),
     ThrottlerModule.forRoot([
