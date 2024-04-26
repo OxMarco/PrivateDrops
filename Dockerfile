@@ -7,6 +7,8 @@ WORKDIR /usr/src/app
 # Invalidate the cache
 ARG CACHEBUST=1
 
+ENV GENERATE_SOURCEMAP false
+
 # Copy package.json and package-lock.json into the working directory
 COPY package*.json ./
 
@@ -17,7 +19,7 @@ RUN npm install
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN NODE_OPTIONS="--max-old-space-size=8192" npm run build
 
 # Expose ports
 EXPOSE 3000
