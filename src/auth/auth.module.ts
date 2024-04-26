@@ -6,9 +6,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
-import { User, UserSchema } from 'src/schemas/user';
-import { MailgunModule } from 'src/mailgun/mailgun.module';
-import { AwsModule } from 'src/aws/aws.module';
+import { User, UserSchema } from '../schemas/user';
+import { MailgunModule } from '../mailgun/mailgun.module';
+import { AwsModule } from '../aws/aws.module';
 
 @Module({
   imports: [

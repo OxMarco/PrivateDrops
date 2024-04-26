@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
-import { LowercasePipe } from 'src/validation/lowercase';
-import { CreateMediaDto } from 'src/dtos/create-media';
-import { Media } from 'src/schemas/Media';
-import { Public } from 'src/decorators/public';
-import { MediaEntity } from 'src/entities/media';
-import { FileValidationPipe } from 'src/validation/file';
-import { LeaveFeedbackDto } from 'src/dtos/leave-feedback';
+import { LowercasePipe } from '../validation/lowercase';
+import { CreateMediaDto } from '../dtos/create-media';
+import { Media } from '../schemas/Media';
+import { Public } from '../decorators/public';
+import { MediaEntity } from '../entities/media';
+import { FileValidationPipe } from '../validation/file';
+import { LeaveFeedbackDto } from '../dtos/leave-feedback';
 
 @Controller('media')
 export class MediaController {

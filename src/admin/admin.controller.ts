@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Req } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { Media } from 'src/schemas/media';
-import { User } from 'src/schemas/user';
-import { View } from 'src/schemas/view';
+import { Media } from '../schemas/media';
+import { User } from '../schemas/user';
+import { View } from '../schemas/view';
 
 @Controller('admin')
 export class AdminController {

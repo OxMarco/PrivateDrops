@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChangeNicknameDto } from 'src/dtos/change-nickname';
-import { User } from 'src/schemas/user';
+import { ChangeNicknameDto } from '../dtos/change-nickname';
+import { User } from '../schemas/user';
 
 @Injectable()
 export class UserService {

@@ -7,9 +7,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { randomBytes } from 'crypto';
-import { MailgunService } from 'src/mailgun/mailgun.service';
-import { LoginDto } from 'src/dtos/login';
-import { User } from 'src/schemas/user';
+import { MailgunService } from '../mailgun/mailgun.service';
+import { LoginDto } from '../dtos/login';
+import { User } from '../schemas/user';
 
 @Injectable()
 export class AuthService {

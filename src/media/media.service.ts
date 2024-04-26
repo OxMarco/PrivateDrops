@@ -8,13 +8,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import sharp from 'sharp';
-import { AwsService } from 'src/aws/aws.service';
-import { View } from 'src/schemas/view';
-import { User } from 'src/schemas/user';
-import { Media } from 'src/schemas/media';
-import { CreateMediaDto } from 'src/dtos/create-media';
-import { MediaEntity } from 'src/entities/media';
-import { LeaveFeedbackDto } from 'src/dtos/leave-feedback';
+import { AwsService } from '../aws/aws.service';
+import { View } from '../schemas/view';
+import { User } from '../schemas/user';
+import { Media } from '../schemas/media';
+import { CreateMediaDto } from '../dtos/create-media';
+import { MediaEntity } from '../entities/media';
+import { LeaveFeedbackDto } from '../dtos/leave-feedback';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
