@@ -27,8 +27,7 @@ export class SendgridService {
       };
       await SendGrid.send(mail);
     } catch (error) {
-      console.log(error)
-      throw new BadRequestException({ error: 'Failed to send email' });
+      throw new BadRequestException({ error });
     }
   }
 
