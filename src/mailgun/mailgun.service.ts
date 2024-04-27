@@ -21,7 +21,7 @@ export class MailgunService {
   ): Promise<void> {
     const apiKey = this.configService.get<string>('MAILGUN_API_KEY');
     const domain = this.configService.get<string>('MAILGUN_DOMAIN');
-    const from = `PrivateDrops <noreply@privatedrops.me>`;
+    const from = `PrivateDrops <mailgun@privatedrops.me>`;
 
     const url = `https://api.mailgun.net/v3/${domain}/messages`;
     const formData = new URLSearchParams();

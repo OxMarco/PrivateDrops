@@ -1,11 +1,23 @@
 services:
+  mongo:
+    image: "mongo:latest"
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: mongopassword
+      MONGO_INITDB_DATABASE: nestjsdb
+    volumes:
+      - mongodb_data_container:/data/db
+
   nestjs:
     container_name: nestjs-backend
     build: .
     stop_signal: SIGTERM
     stop_grace_period: 200s
     environment:
-      DATABASE_URL: "${DATABASE_URL}"
+      DATABASE_URL: "mongodb://mongoadmin:mongopassword@mongo:27017/nestjsdb?authSource=admin"
+      DATABASE_USER: "mongoadmin"
+      DATABASE_PASSWORD: "mongopassword"
       JWT_SECRET: "${JWT_SECRET}"
       MAILGUN_API_KEY: "${MAILGUN_API_KEY}"
       MAILGUN_DOMAIN: "${MAILGUN_DOMAIN}"
@@ -13,8 +25,13 @@ services:
       AWS_S3_ACCESS_KEY: "${AWS_S3_ACCESS_KEY}"
       AWS_S3_SECRET_KEY: "${AWS_S3_SECRET_KEY}"
       VIDEO_DEFAULT_BLURRED_URL: "${VIDEO_DEFAULT_BLURRED_URL}"
+    depends_on:
+      mongo:
+        condition: service_started
     volumes:
       - nestjs_data_container:/usr/src/app
+    links:
+      - mongo
 
   nginx:
     image: jonasal/nginx-certbot:latest
@@ -36,4 +53,5 @@ services:
     
 volumes:
   nestjs_data_container:
+  mongodb_data_container:
   nginx_secrets:

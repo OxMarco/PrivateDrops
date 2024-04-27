@@ -2,7 +2,6 @@
   "name": "@privatedrops/backend",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -67,7 +66,6 @@
   },
   "jest": {
     "moduleFileExtensions": [
-      "js",
       "json",
       "ts"
     ],
@@ -77,7 +75,7 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.ts"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
