@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
 import { User, UserSchema } from 'src/schemas/user';
-import { MailgunModule } from 'src/mailgun/mailgun.module';
+import { SendgridModule } from 'src/sendgrid/sendgrid.module';
 import { AwsModule } from 'src/aws/aws.module';
 
 @Module({
@@ -22,7 +22,7 @@ import { AwsModule } from 'src/aws/aws.module';
       }),
       inject: [ConfigService],
     }),
-    MailgunModule,
+    SendgridModule,
     AwsModule,
   ],
   controllers: [AuthController],

@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { randomBytes } from 'crypto';
-import { MailgunService } from 'src/mailgun/mailgun.service';
+import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import { LoginDto } from 'src/dtos/login';
 import { User } from 'src/schemas/user';
 
@@ -15,7 +15,7 @@ import { User } from 'src/schemas/user';
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private mailgunService: MailgunService,
+    private sendgridService: SendgridService,
     @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
@@ -35,9 +35,9 @@ export class AuthService {
       await user.save();
     }
 
-    const textMail = `Hello!\nuse the following link https://auth/login/${nonce} to login`;
-    //const htmlMail = this.mailgunService.loadHtmlTemplate({ nonce }, 'login.html')
-    await this.mailgunService.sendEmail(
+    const textMail = `Welcome to PrivateDrops!\nUse the following link https://privatedrops.me/login/${nonce} to log in`;
+    //const htmlMail = this.sendgridService.loadHtmlTemplate({ nonce }, 'login.html')
+    await this.sendgridService.sendEmail(
       loginDto.email,
       'PrivateDrops - login link',
       textMail,
