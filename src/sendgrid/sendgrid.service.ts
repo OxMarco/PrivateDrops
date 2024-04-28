@@ -1,9 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailDataRequired, default as SendGrid } from '@sendgrid/mail';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as handlebars from 'handlebars';
+import { HtmlEmailFields, getHtmlTemplate } from './template.mail';
 
 @Injectable()
 export class SendgridService {
@@ -16,25 +14,23 @@ export class SendgridService {
     to: string,
     subject: string,
     textEmail: string,
-    htmlEmail: string,
+    htmlEmailOptions: HtmlEmailFields,
   ): Promise<void> {
+    const htmlEmail = getHtmlTemplate(htmlEmailOptions);
+
     try {
       const mail: MailDataRequired = {
         to,
         from: 'PrivateDrops <info@privatedrops.me>',
         subject,
-        content: [{ type: 'text/plain', value: textEmail }],
+        content: [
+          { type: 'text/plain', value: textEmail },
+          { type: 'text/html', value: htmlEmail },
+        ],
       };
       await SendGrid.send(mail);
     } catch (error) {
       throw new BadRequestException({ error });
     }
-  }
-
-  loadHtmlTemplate(data: any, filename: string): string {
-    const filePath = path.join(__dirname, './templates/' + filename + '.html');
-    const htmlContent = fs.readFileSync(filePath, 'utf8');
-    const template = handlebars.compile(htmlContent);
-    return template(data);
   }
 }

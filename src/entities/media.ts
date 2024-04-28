@@ -23,5 +23,20 @@ export class MediaEntity {
   totalViews: number;
 
   @Expose()
-  earnings: number;
+  mime: string;
+
+  @Expose()
+  earnings?: number;
+
+  @Expose()
+  viewer?: {
+    hasPaid: boolean;
+    leftFeedback: boolean;
+  };
+
+  @Expose()
+  owner?: {
+    nickname: string;
+    ratings: number;
+  };
 }

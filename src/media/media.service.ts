@@ -4,6 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -15,7 +16,6 @@ import { Media } from 'src/schemas/media';
 import { CreateMediaDto } from 'src/dtos/create-media';
 import { MediaEntity } from 'src/entities/media';
 import { LeaveFeedbackDto } from 'src/dtos/leave-feedback';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MediaService {
@@ -29,38 +29,19 @@ export class MediaService {
 
   private async getUserView(media: Media, ip: string) {
     const found = media.views.find((view) => view.ip === ip);
-    if (!found) return null;
+    if (!found) return { userView: null, hasPaid: false };
 
     const userView = await this.viewModel.findById((found as any)._id).exec();
-
-    return userView;
+    return { userView, hasPaid: userView.payment };
   }
 
-  async registerPayment(code: string, ip: string) {
-    const media: any = await this.mediaModel
-      .findOne({ code })
-      .populate('owner')
-      .exec();
-    if (!media) throw new NotFoundException({ error: 'Media not found' });
+  private calculateAverage(ratings: number[]) {
+    if (ratings.length === 0) {
+      return 0;
+    }
 
-    const hasValidView = media.views.some((view) => view['ip'] === ip);
-    if (hasValidView) return;
-
-    if (media.singleView && media.views.length)
-      throw new BadRequestException({ error: 'Max views reached' });
-
-    const view = await this.viewModel.create({
-      ip,
-      payment: true,
-    });
-    media.views.push(view);
-    await media.save();
-
-    const user = await this.userModel.findById(media.owner._id).exec();
-    if (!user) throw new NotFoundException({ error: 'User not found' });
-
-    user.payouts += media.price;
-    await user.save();
+    const sum = ratings.reduce((acc, rating) => acc + rating, 0);
+    return sum / ratings.length;
   }
 
   async getUserMedia(userId: string): Promise<MediaEntity[]> {
@@ -77,11 +58,12 @@ export class MediaService {
       url: media.originalUrl,
       singleView: media.singleView,
       totalViews: media.views.length,
+      mime: media.mime,
       earnings: media.price * media.views.length,
     }));
   }
 
-  async getMedia(code: string, ip: string): Promise<any> {
+  async getMedia(code: string, ip: string): Promise<MediaEntity> {
     const media = await this.mediaModel
       .findOne({ code })
       .populate('views')
@@ -89,9 +71,9 @@ export class MediaService {
       .exec();
     if (!media) throw new NotFoundException({ error: 'Media not found' });
 
-    const userView = await this.getUserView(media, ip);
+    const { userView, hasPaid } = await this.getUserView(media, ip);
     let mediaUrl: string;
-    if (userView) {
+    if (userView && hasPaid) {
       userView.lastSeen = new Date();
       await userView.save();
       mediaUrl = media.originalUrl;
@@ -100,15 +82,22 @@ export class MediaService {
     }
 
     return {
-      mediaUrl,
+      id: media.id,
+      code: media.code,
       price: media.price,
       currency: media.currency,
+      url: mediaUrl,
       singleView: media.singleView,
+      totalViews: media.views.length,
       mime: media.mime,
-      nickname: (media.owner as any).nickname,
-      paid: userView != null,
-      ratings: this.calculateAverage((media.owner as any).ratings),
-      leftFeedback: userView ? userView.leftFeedback : false,
+      viewer: {
+        hasPaid,
+        leftFeedback: userView ? userView.leftFeedback : false,
+      },
+      owner: {
+        nickname: (media.owner as any).nickname,
+        ratings: this.calculateAverage((media.owner as any).ratings),
+      },
     };
   }
 
@@ -165,17 +154,30 @@ export class MediaService {
   }
 
   async deleteMedia(id: string, userId: string) {
-    const media = await this.mediaModel.findById(id).populate('owner').exec();
+    const media = await this.mediaModel
+      .findById(id)
+      .populate('owner')
+      .populate('views')
+      .exec();
     if (!media) throw new NotFoundException({ error: 'Media not found' });
 
-    if ((media.owner as any)._id != userId)
+    if (String((media.owner as any)._id) != userId)
       throw new UnauthorizedException({ error: 'Access denied' });
+
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recentView = media.views.some(
+      (view: View) => new Date(view.lastSeen) > oneDayAgo,
+    );
+    if (recentView)
+      throw new UnauthorizedException({
+        error: 'Cannot delete media with recent views',
+      });
 
     await this.awsService.deleteFile(media.originalName);
     if (media.mime.includes('image'))
       await this.awsService.deleteFile(media.blurredName);
 
-    const viewIds = media.views.map((view) => (view as any)._id);
+    const viewIds = media.views.map((view: View) => (view as any)._id);
     await this.viewModel.deleteMany({ _id: { $in: viewIds } }).exec();
     await this.mediaModel.findByIdAndDelete(id).exec();
   }
@@ -187,8 +189,9 @@ export class MediaService {
       .exec();
     if (!media) throw new NotFoundException({ error: 'Media not found' });
 
-    const userView = await this.getUserView(media, ip);
-    if (!userView) throw new UnauthorizedException({ error: 'View not found' });
+    const { userView, hasPaid } = await this.getUserView(media, ip);
+    if (!userView || !hasPaid)
+      throw new UnauthorizedException({ error: 'Not a paid viewer' });
 
     if (userView.leftFeedback) {
       throw new BadRequestException({ error: 'Feedback already left' });
@@ -202,14 +205,5 @@ export class MediaService {
       user.ratings.push(feedbackDto.rating);
       await user.save();
     }
-  }
-
-  calculateAverage(ratings: number[]) {
-    if (ratings.length === 0) {
-      return 0;
-    }
-
-    const sum = ratings.reduce((acc, rating) => acc + rating, 0);
-    return (sum / ratings.length).toFixed(2);
   }
 }

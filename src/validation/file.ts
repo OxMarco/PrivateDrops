@@ -9,7 +9,14 @@ export class FileValidationPipe implements PipeTransform {
     }
 
     const { mime } = await fromBuffer(value.buffer);
-    const MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4'];
+    const MIME_TYPES = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'video/mp4',
+      'video/mpeg',
+      'video/webm',
+    ];
 
     if (!mime || !MIME_TYPES.includes(mime)) {
       throw new BadRequestException(

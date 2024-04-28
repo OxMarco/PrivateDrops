@@ -13,6 +13,7 @@ import { StripeModule } from './stripe/stripe.module';
 import { AwsModule } from './aws/aws.module';
 import { AdminModule } from './admin/admin.module';
 import { SendgridModule } from './sendgrid/sendgrid.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { SendgridModule } from './sendgrid/sendgrid.module';
     SendgridModule,
     AwsModule,
     AdminModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

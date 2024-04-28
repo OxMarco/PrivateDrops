@@ -24,6 +24,9 @@ services:
       AWS_S3_ACCESS_KEY: "${AWS_S3_ACCESS_KEY}"
       AWS_S3_SECRET_KEY: "${AWS_S3_SECRET_KEY}"
       VIDEO_DEFAULT_BLURRED_URL: "${VIDEO_DEFAULT_BLURRED_URL}"
+      STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
+      APP_FEE: "${APP_FEE}"
     depends_on:
       mongo:
         condition: service_started

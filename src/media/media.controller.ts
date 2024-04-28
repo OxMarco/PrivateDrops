@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Ip,
   Param,
@@ -24,10 +25,9 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Get()
-  async getUserMedia(@Req() req: Request): Promise<{ media: MediaEntity[] }> {
+  async getUserMedia(@Req() req: Request): Promise<MediaEntity[]> {
     const userId: string = (req as any).id;
-    const media = await this.mediaService.getUserMedia(userId);
-    return { media };
+    return await this.mediaService.getUserMedia(userId);
   }
 
   @Public()
@@ -35,7 +35,7 @@ export class MediaController {
   async get(
     @Param('code', LowercasePipe) code: string,
     @Ip() ip: string,
-  ): Promise<any> {
+  ): Promise<MediaEntity> {
     return await this.mediaService.getMedia(code, ip);
   }
 
@@ -50,17 +50,11 @@ export class MediaController {
     return await this.mediaService.upload(mediaFile, createMediaDto, userId);
   }
 
-  @Post('delete/:id')
-  async delete(@Param('id') id: string, @Req() req: Request): Promise<void> {
+  @Delete(':id')
+  async deleteMedia(@Param('id') id: string, @Req() req: Request) {
     const userId: string = (req as any).id;
 
     return await this.mediaService.deleteMedia(id, userId);
-  }
-
-  @Public()
-  @Get('/pay/:code')
-  async pay(@Param('code') code: string, @Ip() ip: string): Promise<void> {
-    return await this.mediaService.registerPayment(code, ip);
   }
 
   @Public()

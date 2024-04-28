@@ -8,10 +8,4 @@ export class AppController {
   index() {
     return { message: 'ok', time: new Date().toISOString() };
   }
-
-  @Public()
-  @Get('/webhooks')
-  async handleWebhooks() {
-    // TODO implement it
-  }
 }

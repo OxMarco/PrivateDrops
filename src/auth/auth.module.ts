@@ -9,6 +9,7 @@ import { AuthGuard } from './auth.guard';
 import { User, UserSchema } from 'src/schemas/user';
 import { SendgridModule } from 'src/sendgrid/sendgrid.module';
 import { AwsModule } from 'src/aws/aws.module';
+import { StripeModule } from 'src/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AwsModule } from 'src/aws/aws.module';
     }),
     SendgridModule,
     AwsModule,
+    StripeModule,
   ],
   controllers: [AuthController],
   providers: [

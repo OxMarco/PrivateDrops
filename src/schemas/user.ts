@@ -22,6 +22,9 @@ export class User {
 
   @Prop({ required: true, default: [] })
   ratings: number[];
+
+  @Prop({ required: false })
+  stripeAccountId?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
