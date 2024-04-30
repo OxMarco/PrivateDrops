@@ -11,7 +11,6 @@ import { Media } from 'src/schemas/media';
 import { User } from 'src/schemas/user';
 import { View } from 'src/schemas/view';
 import { SendgridService } from 'src/sendgrid/sendgrid.service';
-import { HtmlEmailFields } from 'src/sendgrid/template.mail';
 import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
@@ -22,7 +21,6 @@ export class PaymentService {
   constructor(
     private configService: ConfigService,
     private stripeService: StripeService,
-    private sendgridService: SendgridService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
     @InjectModel(View.name) private viewModel: Model<View>,
@@ -132,15 +130,6 @@ export class PaymentService {
             );
             return;
           }
-
-          /*
-          const text = `You just received a new payment of ${payout} ${media.currency}`
-          await this.sendgridService.sendEmail(
-            user.email, 
-            'Earnings coming in!', 
-            text,
-          );
-          */
 
           user.payouts += payout;
           await user.save();
