@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Ip, Param, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from 'src/dtos/login';
 import { User } from 'src/schemas/user';
@@ -16,7 +16,7 @@ export class AuthController {
 
   @Public()
   @Get('/login/:code')
-  async login(@Param('code') code: string): Promise<User> {
-    return await this.authService.login(code);
+  async login(@Param('code') code: string, @Ip() ip: string): Promise<User> {
+    return await this.authService.login(code, ip);
   }
 }

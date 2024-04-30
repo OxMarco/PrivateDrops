@@ -76,11 +76,39 @@ export class StripeService {
     });
   }
 
-  async createAccount(email: string) {
+  async createAccount(userId: string, email: string, ip: string) {
     return await this.stripe.accounts.create({
-      type: 'standard',
-      business_type: 'individual',
       email,
+      controller: {
+        losses: {
+          payments: 'application',
+        },
+        fees: {
+          payer: 'application',
+        },
+        stripe_dashboard: {
+          type: 'none',
+        },
+        requirement_collection: 'application',
+      },
+      capabilities: {
+        card_payments: {
+          requested: true,
+        },
+        transfers: {
+          requested: true,
+        },
+      },
+      business_type: 'individual',
+      business_profile: {
+        mcc: '5815', // digital_goods_media
+        url: `https://privatedrops.me/users/${userId}`,
+      },
+      country: 'IT',
+      tos_acceptance: {
+        date: Math.floor(Date.now() / 1000),
+        ip,
+      },
     });
   }
 

@@ -10,6 +10,8 @@ import { Model } from 'mongoose';
 import { Media } from 'src/schemas/media';
 import { User } from 'src/schemas/user';
 import { View } from 'src/schemas/view';
+import { SendgridService } from 'src/sendgrid/sendgrid.service';
+import { HtmlEmailFields } from 'src/sendgrid/template.mail';
 import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
@@ -20,6 +22,7 @@ export class PaymentService {
   constructor(
     private configService: ConfigService,
     private stripeService: StripeService,
+    private sendgridService: SendgridService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
     @InjectModel(View.name) private viewModel: Model<View>,
@@ -40,8 +43,6 @@ export class PaymentService {
     const user = await this.userModel.findById(userId).exec();
     if (!user) throw new NotFoundException({ error: 'User not found' });
     const link = await this.stripeService.createLink(user.stripeAccountId);
-    console.log(link);
-
     return link.url;
   }
 
@@ -114,23 +115,34 @@ export class PaymentService {
           media.markModified('views');
           await media.save();
 
-          console.log(media.views);
-
           const user = await this.userModel
             .findById((media.owner as any)._id)
             .exec();
+
+          const feeInCents = Math.round((media.price * this.appFee) / 100);
+          const payout = media.price - feeInCents;
 
           if (!user) {
             this.logger.error(
               `User ${String((media.owner as any).id)} owner of ${
                 media.id
-              } not found, owed ${media.price} ${media.currency}`,
+              } not found, owed ${media.price} (-${feeInCents} fee) ${
+                media.currency
+              }`,
             );
             return;
           }
 
-          const feeInCents = Math.round((media.price * this.appFee) / 100);
-          user.payouts += media.price - feeInCents;
+          /*
+          const text = `You just received a new payment of ${payout} ${media.currency}`
+          await this.sendgridService.sendEmail(
+            user.email, 
+            'Earnings coming in!', 
+            text,
+          );
+          */
+
+          user.payouts += payout;
           await user.save();
         }
       }

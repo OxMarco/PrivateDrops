@@ -47,12 +47,12 @@ export class AuthService {
     const textMail = `Hi!\nuse the following link ${url} to sign in on PrivateDrops`;
     const options: HtmlEmailFields = {
       header: '',
-      paragraphOne: 'use the following button to log in',
+      paragraphOne: 'to log in on PrivateDrops use the following button',
       url: url,
       cta: 'Sign In',
-      paragraphTwo: `or if the button doesn\'t work, use the following link ${url}.`,
-      salutation: 'See you soon!',
-      footer: 'PrivateDrops ltd',
+      paragraphTwo: `or if the button doesn\'t work, use the following link <a href="${url}">${url}</a>`,
+      salutation: 'Start earning now!',
+      footer: 'A solution developed by Impossible Labs ltd',
     };
 
     await this.sendgridService.sendEmail(
@@ -65,7 +65,7 @@ export class AuthService {
     return { message: 'sent' };
   }
 
-  async login(nonce: string): Promise<any> {
+  async login(nonce: string, ip: string): Promise<any> {
     const user = await this.userModel.findOne({ nonce }).exec();
     if (!user) throw new NotFoundException({ error: 'User not found' });
 
@@ -74,7 +74,11 @@ export class AuthService {
 
     if (!user.stripeAccountId) {
       try {
-        const account = await this.stripeService.createAccount(user.email);
+        const account = await this.stripeService.createAccount(
+          user.id,
+          user.email,
+          ip,
+        );
         user.stripeAccountId = account.id;
       } catch (err) {
         this.logger.error('Stripe account creation error', err);
