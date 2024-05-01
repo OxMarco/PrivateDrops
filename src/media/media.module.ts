@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { HttpModule } from '@nestjs/axios';
 import { BullModule } from '@nestjs/bull';
 import { MediaService } from './media.service';
 import { MediaController } from './media.controller';
@@ -19,6 +20,7 @@ import { FileProcessor } from './file.processor';
     BullModule.registerQueue({
       name: 'file',
     }),
+    HttpModule,
     AwsModule,
   ],
   controllers: [MediaController],

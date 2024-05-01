@@ -5,6 +5,9 @@ export type ViewDocument = HydratedDocument<View>;
 
 @Schema({ timestamps: true })
 export class View {
+  @Prop()
+  id: string;
+
   @Prop({ required: true })
   ip: string;
 
