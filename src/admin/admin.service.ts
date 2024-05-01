@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import { AwsService } from 'src/aws/aws.service';
 import { Media } from 'src/schemas/media';
 import { User } from 'src/schemas/user';
-import { View } from 'src/schemas/view';
+import { View, ViewDocument } from 'src/schemas/view';
 
 @Injectable()
 export class AdminService {
@@ -58,7 +58,7 @@ export class AdminService {
     if (media.mime.includes('image'))
       await this.awsService.deleteFile(media.blurredName);
 
-    const viewIds = media.views.map((view) => (view as any)._id);
+    const viewIds = media.views.map((view: ViewDocument) => view._id);
     await this.viewModel.deleteMany({ _id: { $in: viewIds } }).exec();
     await this.mediaModel.findByIdAndDelete(mediaId).exec();
   }

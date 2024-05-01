@@ -7,9 +7,6 @@ export type MediaDocument = HydratedDocument<Media>;
 
 @Schema({ timestamps: true })
 export class Media {
-  @Prop()
-  id: string;
-
   @Prop({ required: true, unique: true, index: true })
   code: string;
 

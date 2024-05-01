@@ -1,4 +1,5 @@
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { HttpService } from '@nestjs/axios';
 import { Job } from 'bull';
@@ -47,7 +48,9 @@ export class FileProcessor {
         ),
     );
     if (this.checkForMinor(response)) {
-      this.logger.log('This media contains underage people');
+      this.logger.warn('This media contains underage people');
+    } else {
+      this.logger.log('This media does not contain underage people');
     }
 
     // TODO check if media is copyrighted or child abuse, if so remove it and send mail warning to user
