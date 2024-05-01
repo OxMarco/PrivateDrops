@@ -9,7 +9,20 @@ services:
     volumes:
       - mongodb_data_container:/data/db
     ports:
-      - 27018:27017
+      - 27017:27017
+
+  redis:
+    image: "redis:latest"
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_data_container:/data/redis
+    environment:
+      REDIS_PASSWORD: redispassword
+      REDIS_PORT: 6379
+      REDIS_DATABASES: 1
+    ports:
+      - 6379:6379
 
   nestjs:
     build: .
@@ -17,26 +30,33 @@ services:
     stop_signal: SIGTERM
     stop_grace_period: 200s
     environment:
+      JWT_SECRET: "${JWT_SECRET}"
+      APP_FEE: "${APP_FEE}"
+      VIDEO_DEFAULT_BLURRED_URL: "${VIDEO_DEFAULT_BLURRED_URL}"
       DATABASE_URL: "mongodb://mongoadmin:mongopassword@mongo:27017/nestjsdb?authSource=admin"
-      DATABASE_USER: "mongoadmin"
-      DATABASE_PASSWORD: "mongopassword"
-      JWT_SECRET: "changeme"
+      REDIS_HOST: "redis"
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: "redispassword"
       SENDGRID_API_KEY: "${SENDGRID_API_KEY}"
       AWS_S3_BUCKET: "${AWS_S3_BUCKET}"
       AWS_S3_ACCESS_KEY: "${AWS_S3_ACCESS_KEY}"
       AWS_S3_SECRET_KEY: "${AWS_S3_SECRET_KEY}"
-      VIDEO_DEFAULT_BLURRED_URL: "${VIDEO_DEFAULT_BLURRED_URL}"
       STRIPE_SECRET_KEY: "${STRIPE_SECRET_KEY}"
       STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET}"
-      APP_FEE: "${APP_FEE}"
     ports:
       - 3000:3000
     depends_on:
       mongo:
         condition: service_started
+      redis:
+        condition: service_started
     volumes:
       - nestjs_data_container:/usr/src/app
-    
+    links:
+      - mongo
+      - redis
+
 volumes:
   nestjs_data_container:
   mongodb_data_container:
+  redis_data_container:

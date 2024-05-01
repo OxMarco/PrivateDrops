@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 
 export type ViewDocument = HydratedDocument<View>;
 
-@Schema({ timestamps: { createdAt: true, updatedAt: false } })
+@Schema({ timestamps: true })
 export class View {
   @Prop({ required: true })
   ip: string;
@@ -16,6 +16,12 @@ export class View {
 
   @Prop({ required: true, default: new Date() })
   lastSeen: Date;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const ViewSchema = SchemaFactory.createForClass(View);

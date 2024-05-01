@@ -39,4 +39,10 @@ export class MediaEntity {
     nickname: string;
     ratings: number;
   };
+
+  @Expose()
+  createdAt: Date;
+
+  @Expose()
+  updatedAt: Date;
 }

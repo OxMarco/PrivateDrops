@@ -1,11 +1,13 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailDataRequired, default as SendGrid } from '@sendgrid/mail';
-import { HtmlEmailFields, getHtmlTemplate } from './template.mail';
 
 @Injectable()
 export class SendgridService {
+  private logger: Logger;
+
   constructor(private configService: ConfigService) {
+    this.logger = new Logger(SendgridService.name);
     const apiKey = this.configService.get<string>('SENDGRID_API_KEY');
     SendGrid.setApiKey(apiKey);
   }
@@ -14,10 +16,8 @@ export class SendgridService {
     to: string,
     subject: string,
     textEmail: string,
-    htmlEmailOptions: HtmlEmailFields,
+    htmlEmail: string,
   ): Promise<void> {
-    const htmlEmail = getHtmlTemplate(htmlEmailOptions);
-
     try {
       const mail: MailDataRequired = {
         to,
@@ -30,6 +30,7 @@ export class SendgridService {
       };
       await SendGrid.send(mail);
     } catch (error) {
+      this.logger.error(`Error sending email to ${to}`, error);
       throw new BadRequestException({ error });
     }
   }

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BullModule } from '@nestjs/bull';
-import { MediaService } from './media.service';
-import { MediaController } from './media.controller';
-import { User, UserSchema } from 'src/schemas/user';
+import { WebhookService } from './webhook.service';
+import { WebhookController } from './webhook.controller';
+import { StripeModule } from 'src/stripe/stripe.module';
 import { Media, MediaSchema } from 'src/schemas/media';
+import { User, UserSchema } from 'src/schemas/user';
 import { View, ViewSchema } from 'src/schemas/view';
-import { AwsModule } from 'src/aws/aws.module';
-import { FileProcessor } from './file.processor';
 
 @Module({
   imports: [
@@ -17,11 +16,11 @@ import { FileProcessor } from './file.processor';
       { name: View.name, schema: ViewSchema },
     ]),
     BullModule.registerQueue({
-      name: 'file',
+      name: 'mail',
     }),
-    AwsModule,
+    StripeModule,
   ],
-  controllers: [MediaController],
-  providers: [MediaService, FileProcessor],
+  controllers: [WebhookController],
+  providers: [WebhookService],
 })
-export class MediaModule {}
+export class WebhookModule {}

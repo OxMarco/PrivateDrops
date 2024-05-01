@@ -5,16 +5,13 @@ import { View } from './view';
 
 export type MediaDocument = HydratedDocument<Media>;
 
-@Schema({ timestamps: { createdAt: true, updatedAt: false } })
+@Schema({ timestamps: true })
 export class Media {
   @Prop({ required: true, unique: true, index: true })
   code: string;
 
   @Prop({ required: true })
   price: number;
-
-  @Prop({ required: true, default: 'eur' })
-  currency: string;
 
   @Prop({ required: true, unique: true })
   originalName: string;
@@ -42,6 +39,12 @@ export class Media {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'View' }] })
   views: View[];
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const MediaSchema = SchemaFactory.createForClass(Media);

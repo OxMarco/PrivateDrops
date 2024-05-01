@@ -3,13 +3,14 @@ import { UserService } from './user.service';
 import { User } from 'src/schemas/user';
 import { ChangeNicknameDto } from 'src/dtos/change-nickname';
 import { Public } from 'src/decorators/public';
+import { UserEntity } from 'src/entities/user';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async getSelf(@Req() req: Request): Promise<User> {
+  async getSelf(@Req() req: Request): Promise<UserEntity> {
     const userId: string = (req as any).id;
 
     return await this.userService.getSelf(userId);

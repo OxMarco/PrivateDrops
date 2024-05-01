@@ -1,12 +1,15 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
+import { InjectQueue } from '@nestjs/bull';
 import { Model } from 'mongoose';
+import { Queue } from 'bull';
 import * as bcrypt from 'bcrypt';
 import sharp from 'sharp';
 import { AwsService } from 'src/aws/aws.service';
@@ -19,13 +22,18 @@ import { LeaveFeedbackDto } from 'src/dtos/leave-feedback';
 
 @Injectable()
 export class MediaService {
+  private logger: Logger;
+
   constructor(
     private configService: ConfigService,
     private awsService: AwsService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
     @InjectModel(View.name) private viewModel: Model<View>,
-  ) {}
+    @InjectQueue('file') private fileQueue: Queue,
+  ) {
+    this.logger = new Logger(MediaService.name);
+  }
 
   private async getUserView(media: Media, ip: string) {
     const found = media.views.find((view) => view.ip === ip);
@@ -47,6 +55,7 @@ export class MediaService {
   async getUserMedia(userId: string): Promise<MediaEntity[]> {
     const medias = await this.mediaModel
       .find({ owner: userId })
+      .populate('owner')
       .populate('views')
       .exec();
 
@@ -54,12 +63,14 @@ export class MediaService {
       id: media.id,
       code: media.code,
       price: media.price,
-      currency: media.currency,
+      currency: (media.owner as any).currency,
       url: media.originalUrl,
       singleView: media.singleView,
       totalViews: media.views.length,
       mime: media.mime,
       earnings: media.price * media.views.length,
+      createdAt: media.createdAt,
+      updatedAt: media.updatedAt,
     }));
   }
 
@@ -85,7 +96,7 @@ export class MediaService {
       id: media.id,
       code: media.code,
       price: media.price,
-      currency: media.currency,
+      currency: (media.owner as any).currency,
       url: mediaUrl,
       singleView: media.singleView,
       totalViews: media.views.length,
@@ -98,6 +109,8 @@ export class MediaService {
         nickname: (media.owner as any).nickname,
         ratings: this.calculateAverage((media.owner as any).ratings),
       },
+      createdAt: media.createdAt,
+      updatedAt: media.updatedAt,
     };
   }
 
@@ -147,8 +160,21 @@ export class MediaService {
         singleView: parsedSingleView,
       });
 
+      await this.fileQueue.add(
+        {
+          mediaId: media.id,
+          url: media.originalUrl,
+          mime: media.mime,
+        },
+        { attempts: 3 },
+      );
+
       return media;
     } catch (error: any) {
+      this.logger.error(
+        'An error occured when uploading a new media file',
+        error,
+      );
       throw new BadRequestException({ error: error.code });
     }
   }
@@ -169,7 +195,7 @@ export class MediaService {
       (view: View) => new Date(view.lastSeen) > oneDayAgo,
     );
     if (recentView)
-      throw new UnauthorizedException({
+      throw new BadRequestException({
         error: 'Cannot delete media with recent views',
       });
 

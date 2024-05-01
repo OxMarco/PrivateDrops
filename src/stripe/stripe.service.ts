@@ -26,7 +26,6 @@ export class StripeService {
   ) {
     try {
       const session = await this.stripe.checkout.sessions.create({
-        submit_type: 'donate',
         line_items: [
           {
             price_data: {
@@ -77,47 +76,72 @@ export class StripeService {
   }
 
   async createAccount(userId: string, email: string, ip: string) {
-    return await this.stripe.accounts.create({
-      email,
-      controller: {
-        losses: {
-          payments: 'application',
+    try {
+      return await this.stripe.accounts.create({
+        email,
+        controller: {
+          losses: {
+            payments: 'application',
+          },
+          fees: {
+            payer: 'application',
+          },
+          stripe_dashboard: {
+            type: 'none',
+          },
+          requirement_collection: 'application',
         },
-        fees: {
-          payer: 'application',
+        capabilities: {
+          card_payments: {
+            requested: true,
+          },
+          transfers: {
+            requested: true,
+          },
         },
-        stripe_dashboard: {
-          type: 'none',
+        business_type: 'individual',
+        business_profile: {
+          mcc: '5815', // digital_goods_media
+          url: `https://privatedrops.me/users/${userId}`,
         },
-        requirement_collection: 'application',
-      },
-      capabilities: {
-        card_payments: {
-          requested: true,
+        country: 'IT',
+        tos_acceptance: {
+          date: Math.floor(Date.now() / 1000),
+          ip,
         },
-        transfers: {
-          requested: true,
-        },
-      },
-      business_type: 'individual',
-      business_profile: {
-        mcc: '5815', // digital_goods_media
-        url: `https://privatedrops.me/users/${userId}`,
-      },
-      country: 'IT',
-      tos_acceptance: {
-        date: Math.floor(Date.now() / 1000),
-        ip,
-      },
-    });
+      });
+    } catch (err) {
+      this.logger.error('Stripe error: ', err);
+      throw new BadRequestException({ error: 'Account creation error' });
+    }
   }
 
   async createLink(stripeAccountId: string) {
-    return await this.stripe.accountLinks.create({
-      account: stripeAccountId,
-      refresh_url: 'https://example.com/refresh',
-      return_url: 'https://example.com/return',
-      type: 'account_onboarding',
-    });
+    try {
+      return await this.stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: 'https://privatedrops.me/profile?verification=false',
+        return_url: 'https://privatedrops.me/profile?verification=true',
+        type: 'account_onboarding',
+      });
+    } catch (err) {
+      this.logger.error('Stripe error: ', err);
+      throw new BadRequestException({
+        error: 'KYC link generation unsuccessful',
+      });
+    }
+  }
+
+  async payout(accountId: string, amount: number) {
+    try {
+      return await this.stripe.transfers.create({
+        amount,
+        currency: 'eur',
+        destination: accountId,
+      });
+    } catch (err) {
+      this.logger.error('Stripe error: ', err);
+      throw new BadRequestException({ error: 'Payout request unsuccessful' });
+    }
   }
 }

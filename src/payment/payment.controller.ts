@@ -1,17 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Headers,
-  Ip,
-  Param,
-  Post,
-  RawBodyRequest,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Get, Ip, Param, Post, Req } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { Public } from 'src/decorators/public';
 import { CheckoutDto } from 'src/dtos/checkout';
+import { LowercasePipe } from 'src/validation/lowercase';
 
 @Controller('payment')
 export class PaymentController {
@@ -20,16 +11,10 @@ export class PaymentController {
   @Public()
   @Get('/verify/:code')
   async verifyPayment(
-    @Param('code') code: string,
+    @Param('code', LowercasePipe) code: string,
     @Ip() ip: string,
   ): Promise<boolean> {
     return await this.paymentService.verifyPayment(code, ip);
-  }
-
-  @Get('/kyc')
-  async getKycLink(@Req() req: Request): Promise<string> {
-    const userId: string = (req as any).id;
-    return await this.paymentService.getKycLink(userId);
   }
 
   @Public()
@@ -46,12 +31,15 @@ export class PaymentController {
     );
   }
 
-  @Public()
-  @Post('/webhook')
-  async handleWebhook(
-    @Req() req: RawBodyRequest<Request>,
-    @Headers('stripe-signature') signature: string,
-  ) {
-    return await this.paymentService.webhook(req.rawBody, signature);
+  @Get('/kyc')
+  async getKycLink(@Req() req: Request): Promise<string> {
+    const userId: string = (req as any).id;
+    return await this.paymentService.getKycLink(userId);
+  }
+
+  @Post('/payout')
+  async requestPayout(@Req() req: Request): Promise<string> {
+    const userId: string = (req as any).id;
+    return await this.paymentService.requestPayout(userId);
   }
 }

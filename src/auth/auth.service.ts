@@ -3,16 +3,18 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
+import { InjectQueue } from '@nestjs/bull';
 import { Model } from 'mongoose';
+import { Queue } from 'bull';
 import { randomBytes } from 'crypto';
-import { SendgridService } from 'src/sendgrid/sendgrid.service';
 import { StripeService } from 'src/stripe/stripe.service';
 import { LoginDto } from 'src/dtos/login';
 import { User } from 'src/schemas/user';
-import { HtmlEmailFields } from 'src/sendgrid/template.mail';
+import { getLoginMailHtml } from 'src/sendgrid/login.mail';
 
 @Injectable()
 export class AuthService {
@@ -21,8 +23,8 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private stripeService: StripeService,
-    private sendgridService: SendgridService,
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectQueue('mail') private mailQueue: Queue,
   ) {
     this.logger = new Logger(AuthService.name);
   }
@@ -45,24 +47,16 @@ export class AuthService {
 
     const url = `https://privatedrops.me/login/${nonce}`;
     const textMail = `Hi!\nuse the following link ${url} to sign in on PrivateDrops`;
-    const options: HtmlEmailFields = {
-      header: '',
-      paragraphOne: 'to log in on PrivateDrops use the following button',
-      url: url,
-      cta: 'Sign In',
-      paragraphTwo: `or if the button doesn\'t work, use the following link <a href="${url}">${url}</a>`,
-      salutation: 'Start earning now!',
-      footer: 'A solution developed by Impossible Labs ltd',
-    };
-
-    await this.sendgridService.sendEmail(
-      loginDto.email,
-      'PrivateDrops - login link',
-      textMail,
-      options,
+    const htmlMail = getLoginMailHtml(url);
+    await this.mailQueue.add(
+      {
+        email: loginDto.email,
+        subject: 'PrivateDrops - login link',
+        textMail,
+        htmlMail,
+      },
+      { attempts: 3 },
     );
-
-    return { message: 'sent' };
   }
 
   async login(nonce: string, ip: string): Promise<any> {
@@ -71,6 +65,9 @@ export class AuthService {
 
     if (user.nonceExpiration.getTime() < Date.now())
       throw new BadRequestException({ error: 'Code expired' });
+
+    if (user.banned)
+      throw new UnauthorizedException({ error: 'User has been banned' });
 
     if (!user.stripeAccountId) {
       try {

@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     private jwtService: JwtService,
     private reflector: Reflector,
   ) {
-    this.jwtSecret = configService.get<string>('JWT_SECRET') || '';
+    this.jwtSecret = configService.get<string>('JWT_SECRET');
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

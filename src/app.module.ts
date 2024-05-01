@@ -14,6 +14,8 @@ import { AwsModule } from './aws/aws.module';
 import { AdminModule } from './admin/admin.module';
 import { SendgridModule } from './sendgrid/sendgrid.module';
 import { PaymentModule } from './payment/payment.module';
+import { BullModule } from '@nestjs/bull';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -39,6 +41,17 @@ import { PaymentModule } from './payment/payment.module';
       timeout: 5000,
       maxRedirects: 5,
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        redis: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
     UserModule,
     AuthModule,
     MediaModule,
@@ -47,6 +60,7 @@ import { PaymentModule } from './payment/payment.module';
     AwsModule,
     AdminModule,
     PaymentModule,
+    WebhookModule,
   ],
   controllers: [AppController],
   providers: [AppService],

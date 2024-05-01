@@ -25,6 +25,24 @@ export class User {
 
   @Prop({ required: false })
   stripeAccountId?: string;
+
+  @Prop({ required: true, default: false })
+  stripeVerified: boolean;
+
+  @Prop({ required: true, default: 'eur' })
+  currency: string;
+
+  @Prop({ required: true, default: 0 })
+  reports: number;
+
+  @Prop({ required: true, default: false })
+  banned: boolean;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
