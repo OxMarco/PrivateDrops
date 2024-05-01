@@ -25,7 +25,12 @@ export class UserController {
   }
 
   @Post()
-  async update(@Body() changeNickname: ChangeNicknameDto): Promise<User> {
-    return await this.userService.update(changeNickname);
+  async update(
+    @Body() changeNickname: ChangeNicknameDto,
+    @Req() req: Request,
+  ): Promise<User> {
+    const userId: string = (req as any).id;
+
+    return await this.userService.update(userId, changeNickname);
   }
 }

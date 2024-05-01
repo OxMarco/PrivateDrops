@@ -34,14 +34,14 @@ export class UserService {
     return await this.userModel.findOne({ nickname: nick }).exec();
   }
 
-  async update(changeNickname: ChangeNicknameDto): Promise<User> {
+  async update(id: string, changeNickname: ChangeNicknameDto): Promise<User> {
     const found = await this.userModel
       .findOne({ nickname: changeNickname.nickname })
       .exec();
     if (found)
       throw new BadRequestException({ error: 'Nickname already in use' });
 
-    const user = await this.userModel.findById(1).exec();
+    const user = await this.userModel.findById(id).exec();
     user.nickname = changeNickname.nickname;
     await user.save();
     return user;
