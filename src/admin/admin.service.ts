@@ -42,6 +42,16 @@ export class AdminService {
       .exec();
   }
 
+  async getFlaggedMedia(id: string): Promise<Media[]> {
+    await this.checkIfAdmin(id);
+
+    return await this.mediaModel
+      .find({ flagged: true })
+      .populate('views')
+      .populate('owner')
+      .exec();
+  }
+
   async getAllViews(id: string): Promise<View[]> {
     await this.checkIfAdmin(id);
 

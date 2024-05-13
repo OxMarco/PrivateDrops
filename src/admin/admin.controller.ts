@@ -20,6 +20,12 @@ export class AdminController {
     return await this.adminService.getAllMedia(userId);
   }
 
+  @Get('/media/flagged')
+  async getFlaggedMedia(@Req() req: Request): Promise<Media[]> {
+    const userId: string = (req as any).id;
+    return await this.adminService.getFlaggedMedia(userId);
+  }
+
   @Get('/views')
   async getAllViews(@Req() req: Request): Promise<View[]> {
     const userId: string = (req as any).id;

@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/schemas/user';
 import { ChangeNicknameDto } from 'src/dtos/change-nickname';
+import { ChangeCurrencyDto } from 'src/dtos/change-currency';
 import { Public } from 'src/decorators/public';
 import { UserEntity } from 'src/entities/user';
 
@@ -24,13 +25,23 @@ export class UserController {
     else return false;
   }
 
-  @Post()
-  async update(
+  @Post('/nickname')
+  async updateNickname(
     @Body() changeNickname: ChangeNicknameDto,
     @Req() req: Request,
   ): Promise<User> {
     const userId: string = (req as any).id;
 
-    return await this.userService.update(userId, changeNickname);
+    return await this.userService.updateNickname(userId, changeNickname);
+  }
+
+  @Post('/currency')
+  async updateCurrency(
+    @Body() changeCurrency: ChangeCurrencyDto,
+    @Req() req: Request,
+  ): Promise<User> {
+    const userId: string = (req as any).id;
+
+    return await this.userService.updateCurrency(userId, changeCurrency);
   }
 }

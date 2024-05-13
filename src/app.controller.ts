@@ -8,4 +8,10 @@ export class AppController {
   index() {
     return { message: 'ok', time: new Date().toISOString() };
   }
+
+  @Public()
+  @Get('/favicon.ico')
+  favicon() {
+    return null;
+  }
 }

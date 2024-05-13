@@ -3,6 +3,7 @@ import { PaymentService } from './payment.service';
 import { Public } from 'src/decorators/public';
 import { CheckoutDto } from 'src/dtos/checkout';
 import { LowercasePipe } from 'src/validation/lowercase';
+import { CryptoPayoutDto } from 'src/dtos/crypto-payout';
 
 @Controller('payment')
 export class PaymentController {
@@ -41,5 +42,17 @@ export class PaymentController {
   async requestPayout(@Req() req: Request): Promise<string> {
     const userId: string = (req as any).id;
     return await this.paymentService.requestPayout(userId);
+  }
+
+  @Post('/crypto-payout')
+  async requestCryptoPayout(
+    @Body() cryptoPayoutDto: CryptoPayoutDto,
+    @Req() req: Request,
+  ): Promise<string> {
+    const userId: string = (req as any).id;
+    return await this.paymentService.requestCryptoPayout(
+      userId,
+      cryptoPayoutDto.address,
+    );
   }
 }

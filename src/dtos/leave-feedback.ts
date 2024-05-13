@@ -1,7 +1,15 @@
-import { IsNumber, IsString, Max, Min } from 'class-validator';
+import {
+  IsAlphanumeric,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class LeaveFeedbackDto {
-  @IsString()
+  @IsAlphanumeric()
+  @IsNotEmpty()
   code: string;
 
   @IsNumber()

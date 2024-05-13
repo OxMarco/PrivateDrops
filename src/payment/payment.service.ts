@@ -90,4 +90,11 @@ export class PaymentService {
     );
     return response.id;
   }
+
+  async requestCryptoPayout(userId: string, address: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+
+    return '';
+  }
 }

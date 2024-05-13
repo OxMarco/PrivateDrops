@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { View } from './view';
+import { User } from './user';
 
 export type MediaDocument = HydratedDocument<Media>;
 
@@ -26,7 +27,7 @@ export class Media {
   blurredUrl: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  owner: mongoose.Schema.Types.ObjectId;
+  owner: User;
 
   @Prop({ required: true })
   mime: string;
@@ -39,6 +40,9 @@ export class Media {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'View' }] })
   views: View[];
+
+  @Prop({ required: true, default: false })
+  flagged: boolean;
 
   @Prop()
   createdAt: Date;

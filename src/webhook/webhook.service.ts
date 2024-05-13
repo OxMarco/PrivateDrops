@@ -70,7 +70,7 @@ export class WebhookService {
             `User ${String((media.owner as any).id)} owner of ${
               media.id
             } not found, owed ${media.price} (-${feeInCents} fee) ${
-              (media.owner as any).currency
+              media.owner.currency
             }`,
           );
           return;
@@ -81,9 +81,9 @@ export class WebhookService {
 
         const textMail = `Hi,\nsomeone has just seen your media and you earned ${(
           payout / 100
-        ).toFixed(2)} ${(media.owner as any).currency}!`;
+        ).toFixed(2)} ${media.owner.currency}!`;
         const htmlMail = getPaymentMailHtml(
-          (media.owner as any).currency,
+          media.owner.currency,
           payout,
           'https://privatedrops.me/profile',
         );

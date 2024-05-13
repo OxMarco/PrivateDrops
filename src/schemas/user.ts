@@ -32,9 +32,6 @@ export class User {
   @Prop({ required: true, default: 'eur' })
   currency: string;
 
-  @Prop({ required: true, default: 0 })
-  reports: number;
-
   @Prop({ required: true, default: false })
   banned: boolean;
 

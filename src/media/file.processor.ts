@@ -1,10 +1,15 @@
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { InjectModel } from '@nestjs/mongoose';
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { HttpService } from '@nestjs/axios';
+import { Model } from 'mongoose';
 import { Job } from 'bull';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
+import { Media } from 'src/schemas/media';
+import { User } from 'src/schemas/user';
+import { AwsService } from 'src/aws/aws.service';
 
 type FileJob = {
   mediaId: string;
@@ -19,6 +24,9 @@ export class FileProcessor {
   constructor(
     private readonly httpService: HttpService,
     private configService: ConfigService,
+    private awsService: AwsService,
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Media.name) private mediaModel: Model<Media>,
   ) {
     this.logger = new Logger(FileProcessor.name);
   }
@@ -49,11 +57,21 @@ export class FileProcessor {
     );
     if (this.checkForMinor(response)) {
       this.logger.warn('This media contains underage people');
+
+      const media = await this.mediaModel
+        .findById(data.mediaId)
+        .populate('owner')
+        .exec();
+      if (!media) {
+        this.logger.error('Media not found', job.data);
+        return;
+      }
+
+      media.flagged = true;
+      await media.save();
     } else {
       this.logger.log('This media does not contain underage people');
     }
-
-    // TODO check if media is copyrighted or child abuse, if so remove it and send mail warning to user
   }
 
   @OnQueueError()
