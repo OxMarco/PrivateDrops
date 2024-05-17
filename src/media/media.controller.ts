@@ -11,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
 import { MediaService } from './media.service';
 import { LowercasePipe } from 'src/validation/lowercase';
 import { CreateMediaDto } from 'src/dtos/create-media';
@@ -26,7 +27,7 @@ export class MediaController {
 
   @Get()
   async getUserMedia(@Req() req: Request): Promise<MediaEntity[]> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.mediaService.getUserMedia(userId);
   }
 
@@ -46,13 +47,13 @@ export class MediaController {
     @UploadedFile(new FileValidationPipe()) mediaFile: Express.Multer.File,
     @Req() req: Request,
   ): Promise<Media> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.mediaService.upload(mediaFile, createMediaDto, userId);
   }
 
   @Delete(':id')
   async deleteMedia(@Param('id') id: string, @Req() req: Request) {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
 
     return await this.mediaService.deleteMedia(id, userId);
   }

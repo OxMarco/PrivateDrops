@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Ip, Param, Post, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { PaymentService } from './payment.service';
 import { Public } from 'src/decorators/public';
 import { CheckoutDto } from 'src/dtos/checkout';
@@ -34,13 +35,13 @@ export class PaymentController {
 
   @Get('/kyc')
   async getKycLink(@Req() req: Request): Promise<string> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.paymentService.getKycLink(userId);
   }
 
   @Post('/payout')
   async requestPayout(@Req() req: Request): Promise<string> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.paymentService.requestPayout(userId);
   }
 
@@ -49,7 +50,7 @@ export class PaymentController {
     @Body() cryptoPayoutDto: CryptoPayoutDto,
     @Req() req: Request,
   ): Promise<string> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.paymentService.requestCryptoPayout(
       userId,
       cryptoPayoutDto.address,

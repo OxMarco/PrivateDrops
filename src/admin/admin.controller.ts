@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { AdminService } from './admin.service';
 import { Media } from 'src/schemas/media';
 import { User } from 'src/schemas/user';
@@ -10,25 +11,25 @@ export class AdminController {
 
   @Get('/users')
   async getAllUsers(@Req() req: Request): Promise<User[]> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.adminService.getAllUsers(userId);
   }
 
   @Get('/media')
   async getAllMedia(@Req() req: Request): Promise<Media[]> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.adminService.getAllMedia(userId);
   }
 
   @Get('/media/flagged')
   async getFlaggedMedia(@Req() req: Request): Promise<Media[]> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.adminService.getFlaggedMedia(userId);
   }
 
   @Get('/views')
   async getAllViews(@Req() req: Request): Promise<View[]> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.adminService.getAllViews(userId);
   }
 
@@ -37,7 +38,7 @@ export class AdminController {
     @Body() mediaId: string,
     @Req() req: Request,
   ): Promise<any> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
     return await this.adminService.mediaCleanup(mediaId, userId);
   }
 }

@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Request } from 'express';
 import { UserService } from './user.service';
 import { User } from 'src/schemas/user';
 import { ChangeNicknameDto } from 'src/dtos/change-nickname';
@@ -12,7 +13,7 @@ export class UserController {
 
   @Get()
   async getSelf(@Req() req: Request): Promise<UserEntity> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
 
     return await this.userService.getSelf(userId);
   }
@@ -30,7 +31,7 @@ export class UserController {
     @Body() changeNickname: ChangeNicknameDto,
     @Req() req: Request,
   ): Promise<User> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
 
     return await this.userService.updateNickname(userId, changeNickname);
   }
@@ -40,7 +41,7 @@ export class UserController {
     @Body() changeCurrency: ChangeCurrencyDto,
     @Req() req: Request,
   ): Promise<User> {
-    const userId: string = (req as any).id;
+    const userId: string = req.id;
 
     return await this.userService.updateCurrency(userId, changeCurrency);
   }

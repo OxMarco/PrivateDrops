@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
@@ -27,6 +31,7 @@ export class UserService {
 
   async getSelf(id: string): Promise<UserEntity> {
     const user = await this.userModel.findById(id).exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
 
     return {
       id: user.id,

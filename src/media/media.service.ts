@@ -39,7 +39,7 @@ export class MediaService {
     const found = media.views.find((view) => view.ip === ip);
     if (!found) return { userView: null, hasPaid: false };
 
-    const userView = await this.viewModel.findById((found as any)._id).exec();
+    const userView = await this.viewModel.findById(found._id).exec();
     return { userView, hasPaid: userView.payment };
   }
 
@@ -107,7 +107,7 @@ export class MediaService {
       },
       owner: {
         nickname: media.owner.nickname,
-        ratings: this.calculateAverage((media.owner as any).ratings),
+        ratings: this.calculateAverage(media.owner.ratings),
       },
       createdAt: media.createdAt,
       updatedAt: media.updatedAt,
@@ -187,7 +187,7 @@ export class MediaService {
       .exec();
     if (!media) throw new NotFoundException({ error: 'Media not found' });
 
-    if (String((media.owner as any)._id) != userId)
+    if (media.owner._id != userId)
       throw new UnauthorizedException({ error: 'Access denied' });
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -203,7 +203,7 @@ export class MediaService {
     if (media.mime.includes('image'))
       await this.awsService.deleteFile(media.blurredName);
 
-    const viewIds = media.views.map((view: View) => (view as any)._id);
+    const viewIds = media.views.map((view) => view._id);
     await this.viewModel.deleteMany({ _id: { $in: viewIds } }).exec();
     await this.mediaModel.findByIdAndDelete(id).exec();
   }

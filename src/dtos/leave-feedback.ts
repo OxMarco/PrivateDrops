@@ -2,7 +2,6 @@ import {
   IsAlphanumeric,
   IsNotEmpty,
   IsNumber,
-  IsString,
   Max,
   Min,
 } from 'class-validator';

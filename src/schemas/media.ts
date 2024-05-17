@@ -27,7 +27,7 @@ export class Media {
   blurredUrl: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  owner: User;
+  owner: any;
 
   @Prop({ required: true })
   mime: string;
@@ -39,7 +39,7 @@ export class Media {
   singleView: boolean;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'View' }] })
-  views: View[];
+  views: any[];
 
   @Prop({ required: true, default: false })
   flagged: boolean;

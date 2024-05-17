@@ -23,7 +23,7 @@ export class PaymentService {
     const found = media.views.find((view) => view.ip === ip);
     if (!found) return { userView: null, hasPaid: false };
 
-    const userView = await this.viewModel.findById((found as any)._id).exec();
+    const userView = await this.viewModel.findById(found._id).exec();
     return { userView, hasPaid: userView.payment };
   }
 
@@ -86,6 +86,7 @@ export class PaymentService {
 
     const response = await this.stripeService.payout(
       user.stripeAccountId,
+      user.currency,
       user.payouts,
     );
     return response.id;

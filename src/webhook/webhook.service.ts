@@ -34,10 +34,14 @@ export class WebhookService {
       signature,
     );
 
+    this.logger.log('Received an event', event.type);
+
     if (event.type === 'checkout.session.completed') {
       await this.processCheckout(event);
     } else if (event.type === 'account.updated') {
       await this.processAccountUpdate(event);
+    } else {
+      this.logger.log('Event not processed', event.type);
     }
   }
 
@@ -58,16 +62,14 @@ export class WebhookService {
         media.markModified('views');
         await media.save();
 
-        const user = await this.userModel
-          .findById((media.owner as any)._id)
-          .exec();
+        const user = await this.userModel.findById(media.owner._id).exec();
 
         const feeInCents = Math.round((media.price * this.appFee) / 100);
         const payout = media.price - feeInCents;
 
         if (!user) {
           this.logger.error(
-            `User ${String((media.owner as any).id)} owner of ${
+            `User ${String(media.owner._id)} owner of ${
               media.id
             } not found, owed ${media.price} (-${feeInCents} fee) ${
               media.owner.currency

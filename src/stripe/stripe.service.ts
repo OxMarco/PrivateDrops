@@ -132,12 +132,13 @@ export class StripeService {
     }
   }
 
-  async payout(accountId: string, amount: number) {
+  async payout(accountId: string, currency: string, amount: number) {
     try {
       return await this.stripe.transfers.create({
         amount,
-        currency: 'eur',
+        currency,
         destination: accountId,
+        description: 'Collective payout for PrivateDrops media sales',
       });
     } catch (err) {
       this.logger.error('Stripe error: ', err);
