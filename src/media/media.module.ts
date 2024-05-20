@@ -8,7 +8,7 @@ import { User, UserSchema } from 'src/schemas/user';
 import { Media, MediaSchema } from 'src/schemas/media';
 import { View, ViewSchema } from 'src/schemas/view';
 import { AwsModule } from 'src/aws/aws.module';
-import { FileProcessor } from './file.processor';
+import { MediaProcessor } from './media.processor';
 
 @Module({
   imports: [
@@ -18,12 +18,12 @@ import { FileProcessor } from './file.processor';
       { name: View.name, schema: ViewSchema },
     ]),
     BullModule.registerQueue({
-      name: 'file',
+      name: 'media',
     }),
     HttpModule,
     AwsModule,
   ],
   controllers: [MediaController],
-  providers: [MediaService, FileProcessor],
+  providers: [MediaService, MediaProcessor],
 })
 export class MediaModule {}

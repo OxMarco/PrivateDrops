@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Ip, Param, Post } from '@nestjs/common';
+import { Recaptcha } from '@nestlab/google-recaptcha';
 import { AuthService } from './auth.service';
 import { LoginDto } from 'src/dtos/login';
 import { User } from 'src/schemas/user';
@@ -9,6 +10,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @Recaptcha()
   @Post('/login')
   async nonce(@Body() loginDto: LoginDto): Promise<void> {
     return await this.authService.generateNonce(loginDto);

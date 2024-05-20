@@ -8,31 +8,22 @@ import { Job } from 'bull';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { Media } from 'src/schemas/media';
-import { User } from 'src/schemas/user';
-import { AwsService } from 'src/aws/aws.service';
+import { MediaFileJob } from './media.t';
 
-type FileJob = {
-  mediaId: string;
-  url: string;
-  mime: string;
-};
-
-@Processor('file')
-export class FileProcessor {
+@Processor('media')
+export class MediaProcessor {
   private logger: Logger;
 
   constructor(
     private readonly httpService: HttpService,
     private configService: ConfigService,
-    private awsService: AwsService,
-    @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
   ) {
-    this.logger = new Logger(FileProcessor.name);
+    this.logger = new Logger(MediaProcessor.name);
   }
 
   @Process()
-  async send(job: Job<FileJob>) {
+  async send(job: Job<MediaFileJob>) {
     const data = job.data;
 
     if (!data.mime.includes('image')) return;
@@ -76,7 +67,7 @@ export class FileProcessor {
 
   @OnQueueError()
   onError(job: Job) {
-    this.logger.error('An error occurred in the file checker queue', job.data);
+    this.logger.error('An error occurred in the media checker queue', job.data);
   }
 
   private checkForMinor(response: any) {

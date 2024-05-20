@@ -2,9 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   Ip,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Post,
   Req,
   UploadedFile,
@@ -18,7 +21,6 @@ import { CreateMediaDto } from 'src/dtos/create-media';
 import { Media } from 'src/schemas/media';
 import { Public } from 'src/decorators/public';
 import { MediaEntity } from 'src/entities/media';
-import { FileValidationPipe } from 'src/validation/file';
 import { LeaveFeedbackDto } from 'src/dtos/leave-feedback';
 
 @Controller('media')
@@ -44,7 +46,21 @@ export class MediaController {
   @UseInterceptors(FileInterceptor('mediaFile'))
   async upload(
     @Body() createMediaDto: CreateMediaDto,
-    @UploadedFile(new FileValidationPipe()) mediaFile: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: 350000000,
+            message:
+              'File validation failed (expected size is less than 350MB)',
+          }),
+          new FileTypeValidator({
+            fileType: '.(png|jpeg|jpg|webp|mp4|mpeg|webm)',
+          }),
+        ],
+      }),
+    )
+    mediaFile: Express.Multer.File,
     @Req() req: Request,
   ): Promise<Media> {
     const userId: string = req.id;

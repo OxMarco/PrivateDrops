@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
+import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -49,6 +50,14 @@ import { WebhookModule } from './webhook/webhook.module';
           port: configService.get<number>('REDIS_PORT'),
           password: configService.get<string>('REDIS_PASSWORD'),
         },
+      }),
+      inject: [ConfigService],
+    }),
+    GoogleRecaptchaModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secretKey: configService.get<string>('GOOGLE_RECAPTCHA_SECRET_KEY'),
+        response: (req) => req.headers.recaptcha,
       }),
       inject: [ConfigService],
     }),

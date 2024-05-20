@@ -30,7 +30,7 @@ export class MediaService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
     @InjectModel(View.name) private viewModel: Model<View>,
-    @InjectQueue('file') private fileQueue: Queue,
+    @InjectQueue('media') private mediaQueue: Queue,
   ) {
     this.logger = new Logger(MediaService.name);
   }
@@ -160,11 +160,12 @@ export class MediaService {
         singleView: parsedSingleView,
       });
 
-      await this.fileQueue.add(
+      await this.mediaQueue.add(
         {
           mediaId: media.id,
           url: media.originalUrl,
           mime: media.mime,
+          size: media.size,
         },
         { attempts: 3 },
       );

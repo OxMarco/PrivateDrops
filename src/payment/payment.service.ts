@@ -83,6 +83,10 @@ export class PaymentService {
   async requestPayout(userId: string) {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException({ error: 'User not found' });
+    if (user.payouts < 2000)
+      throw new BadRequestException({
+        error: 'Need to have at least $20 or similar',
+      });
 
     const response = await this.stripeService.payout(
       user.stripeAccountId,

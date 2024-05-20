@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -34,14 +34,10 @@ export class WebhookService {
       signature,
     );
 
-    this.logger.log('Received an event', event.type);
-
     if (event.type === 'checkout.session.completed') {
       await this.processCheckout(event);
     } else if (event.type === 'account.updated') {
       await this.processAccountUpdate(event);
-    } else {
-      this.logger.log('Event not processed', event.type);
     }
   }
 
@@ -52,53 +48,52 @@ export class WebhookService {
         .findById(session.metadata.mediaId)
         .populate('owner')
         .exec();
+      if (!media) throw new NotFoundException();
 
-      if (media) {
-        const view = await this.viewModel.create({
-          ip: session.metadata.ip,
-          payment: true,
-        });
-        media.views.push(view);
-        media.markModified('views');
-        await media.save();
+      const view = await this.viewModel.create({
+        ip: session.metadata.ip,
+        payment: true,
+      });
+      media.views.push(view);
+      media.markModified('views');
+      await media.save();
 
-        const user = await this.userModel.findById(media.owner._id).exec();
+      const user = await this.userModel.findById(media.owner._id).exec();
 
-        const feeInCents = Math.round((media.price * this.appFee) / 100);
-        const payout = media.price - feeInCents;
+      const feeInCents = Math.round((media.price * this.appFee) / 100);
+      const payout = media.price - feeInCents;
 
-        if (!user) {
-          this.logger.error(
-            `User ${String(media.owner._id)} owner of ${
-              media.id
-            } not found, owed ${media.price} (-${feeInCents} fee) ${
-              media.owner.currency
-            }`,
-          );
-          return;
-        }
-
-        user.payouts += payout;
-        await user.save();
-
-        const textMail = `Hi,\nsomeone has just seen your media and you earned ${(
-          payout / 100
-        ).toFixed(2)} ${media.owner.currency}!`;
-        const htmlMail = getPaymentMailHtml(
-          media.owner.currency,
-          payout,
-          'https://privatedrops.me/profile',
+      if (!user) {
+        this.logger.error(
+          `User ${String(media.owner._id)} owner of ${
+            media.id
+          } not found, owed ${media.price} (-${feeInCents} fee) ${
+            media.owner.currency
+          }`,
         );
-        await this.mailQueue.add(
-          {
-            email: user.email,
-            subject: 'PrivateDrops - media viewed',
-            textMail,
-            htmlMail,
-          },
-          { attempts: 3 },
-        );
+        return;
       }
+
+      user.payouts += payout;
+      await user.save();
+
+      const textMail = `Hi,\nsomeone has just seen your media and you earned ${(
+        payout / 100
+      ).toFixed(2)} ${media.owner.currency}!`;
+      const htmlMail = getPaymentMailHtml(
+        media.owner.currency,
+        payout,
+        'https://privatedrops.me/profile',
+      );
+      await this.mailQueue.add(
+        {
+          email: user.email,
+          subject: 'PrivateDrops - media viewed',
+          textMail,
+          htmlMail,
+        },
+        { attempts: 3 },
+      );
     }
   }
 
@@ -110,6 +105,8 @@ export class WebhookService {
       const user = await this.userModel
         .findOne({ email: event.data.object.email })
         .exec();
+      if (!user) throw new NotFoundException();
+
       user.stripeVerified = true;
       await user.save();
     }
