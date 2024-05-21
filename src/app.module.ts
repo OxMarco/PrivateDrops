@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { HttpModule } from '@nestjs/axios';
+import { TerminusModule } from '@nestjs/terminus';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -60,6 +61,9 @@ import { WebhookModule } from './webhook/webhook.module';
         response: (req) => req.headers.recaptcha,
       }),
       inject: [ConfigService],
+    }),
+    TerminusModule.forRoot({
+      logger: false,
     }),
     UserModule,
     AuthModule,

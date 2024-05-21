@@ -100,6 +100,6 @@ export class PaymentService {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException({ error: 'User not found' });
 
-    return '';
+    return address;
   }
 }

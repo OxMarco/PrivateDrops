@@ -1,9 +1,12 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import {
+  BaseExceptionFilter,
+  HttpAdapterHost,
+  NestFactory,
+} from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
-import { SentryFilter } from './sentry.filter';
 
 async function bootstrap() {
   Sentry.init({
@@ -21,15 +24,15 @@ async function bootstrap() {
       whitelist: true, // remove unknown properties
       transform: true, // auto-transform request payloads to specified types
       forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
     }),
   );
   app.enableCors({
     // true for all origins
     origin: '*',
   });
-  app.enableShutdownHooks();
   const { httpAdapter } = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new SentryFilter(httpAdapter));
+  Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
 
   await app.listen(3000);
 }

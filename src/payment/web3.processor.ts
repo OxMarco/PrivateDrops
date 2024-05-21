@@ -23,6 +23,7 @@ export class Web3Processor {
   @Process()
   async send(job: Job<TransactionJob>) {
     const data = job.data;
+    console.log(data);
   }
 
   @OnQueueError()
