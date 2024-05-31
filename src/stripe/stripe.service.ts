@@ -29,6 +29,7 @@ export class StripeService {
         line_items: [
           {
             price_data: {
+              tax_behavior: 'inclusive',
               currency,
               product_data: {
                 name: 'Media file #' + code,
