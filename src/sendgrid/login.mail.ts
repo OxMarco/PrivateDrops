@@ -291,7 +291,7 @@ export const getLoginMailHtml = (url: string): string => {
                             <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                                 <tr>
                                   <td class="content-block">
-                                      <span class="apple-link">A solution developed by Impossible Labs ltd</span>
+                                    <span class="apple-link">A solution developed by <a href="https://impossiblelabs.xyz" target="_blank">Impossible Labs Ltd.</a></span>
                                   </td>
                                 </tr>
                             </table>

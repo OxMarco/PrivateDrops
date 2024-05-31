@@ -50,12 +50,12 @@ export class MediaController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({
-            maxSize: 350000000,
+            maxSize: 300000000,
             message:
               'File validation failed (expected size is less than 350MB)',
           }),
           new FileTypeValidator({
-            fileType: '.(png|jpeg|jpg|webp|mp4|mpeg|webm)',
+            fileType: '.(png|jpeg|jpg|webp|avi|webp|mp4|mpeg|webm)',
           }),
         ],
       }),

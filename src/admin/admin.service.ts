@@ -61,7 +61,7 @@ export class AdminService {
     await this.checkIfAdmin(userId);
 
     const media = await this.mediaModel.findById(mediaId).exec();
-    if (!media) throw new NotFoundException();
+    if (!media) throw new NotFoundException({ error: 'Media not found' });
 
     await this.awsService.deleteFile(media.originalName);
     if (media.mime.includes('image'))

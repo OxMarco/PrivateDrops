@@ -57,7 +57,7 @@ export class WebhookService {
         .findById(session.metadata.mediaId)
         .populate('owner')
         .exec();
-      if (!media) throw new NotFoundException();
+      if (!media) throw new NotFoundException({ error: 'Media not found' });
 
       const view = await this.viewModel.create({
         ip: session.metadata.ip,
@@ -114,7 +114,7 @@ export class WebhookService {
       const user = await this.userModel
         .findOne({ email: event.data.object.email })
         .exec();
-      if (!user) throw new NotFoundException();
+      if (!user) throw new NotFoundException({ error: 'User not found' });
 
       user.stripeVerified = true;
       await user.save();
