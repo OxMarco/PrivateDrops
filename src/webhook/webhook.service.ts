@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -29,15 +34,19 @@ export class WebhookService {
   }
 
   async handleWebhook(requestBody: any, signature: any) {
-    const event = await this.stripeService.processWebhook(
-      requestBody,
-      signature,
-    );
+    try {
+      const event = await this.stripeService.processWebhook(
+        requestBody,
+        signature,
+      );
 
-    if (event.type === 'checkout.session.completed') {
-      await this.processCheckout(event);
-    } else if (event.type === 'account.updated') {
-      await this.processAccountUpdate(event);
+      if (event.type === 'checkout.session.completed') {
+        await this.processCheckout(event);
+      } else if (event.type === 'account.updated') {
+        await this.processAccountUpdate(event);
+      }
+    } catch (e) {
+      throw new BadRequestException({ error: 'Invalid data provided' });
     }
   }
 

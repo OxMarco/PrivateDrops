@@ -12,7 +12,6 @@ import { ChangeCurrencyDto } from 'src/dtos/change-currency';
 import { UserEntity } from 'src/entities/user';
 import { User } from 'src/schemas/user';
 import { Media } from 'src/schemas/media';
-import { StripeService } from 'src/stripe/stripe.service';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable()
@@ -22,7 +21,6 @@ export class UserService {
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
-    private stripeService: StripeService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
   ) {

@@ -20,7 +20,6 @@ export class AdminService {
   ) {}
 
   private async checkIfAdmin(id: string) {
-    return true;
     const user = await this.userModel.findById(id).exec();
     if (!user || user.nickname != 'admin')
       throw new UnauthorizedException({ error: 'Not an admin' });
