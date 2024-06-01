@@ -29,7 +29,7 @@ export class StripeService {
         line_items: [
           {
             price_data: {
-              tax_behavior: 'inclusive',
+              tax_behavior: 'exclusive',
               currency,
               product_data: {
                 name: 'Media file #' + code,
@@ -44,7 +44,7 @@ export class StripeService {
         success_url: redirectSuccess,
         cancel_url: redirectCancel,
         automatic_tax: {
-          enabled: true,
+          enabled: false,
         },
         payment_intent_data: {
           transfer_group: userId,
