@@ -9,11 +9,13 @@ import { AwsService } from 'src/aws/aws.service';
 import { Media } from 'src/schemas/media';
 import { User } from 'src/schemas/user';
 import { View, ViewDocument } from 'src/schemas/view';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
 export class AdminService {
   constructor(
     private awsService: AwsService,
+    private stripeService: StripeService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
     @InjectModel(View.name) private viewModel: Model<View>,
@@ -29,6 +31,19 @@ export class AdminService {
     await this.checkIfAdmin(id);
 
     return await this.userModel.find().exec();
+  }
+
+  async getUserData(id: string, adminId: string) {
+    await this.checkIfAdmin(adminId);
+
+    const user = await this.userModel.findById(id).exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+
+    let taxInfo = {};
+    if (user.stripeAccountId)
+      taxInfo = await this.stripeService.getTaxInfo(user.stripeAccountId);
+
+    return { ...user, taxInfo };
   }
 
   async getAllMedia(id: string): Promise<Media[]> {

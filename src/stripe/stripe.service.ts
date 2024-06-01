@@ -14,6 +14,19 @@ export class StripeService {
     this.webhookSecret = configService.get<string>('STRIPE_WEBHOOK_SECRET');
   }
 
+  async getTaxInfo(userId: string) {
+    try {
+      return await this.stripe.tax.settings.retrieve({
+        stripeAccount: userId,
+      });
+    } catch (err) {
+      this.logger.error('Stripe error: ', err);
+      throw new BadRequestException({
+        error: 'Tax data retrieval unsuccessful',
+      });
+    }
+  }
+
   async createCheckoutPage(
     userId: string,
     code: string,
@@ -111,7 +124,7 @@ export class StripeService {
           mcc: '5815', // digital_goods_media
           url: `https://privatedrops.me/users/${userId}`,
         },
-        country: 'IT',
+        country: 'IT', // TODO get from ip
         tos_acceptance: {
           date: Math.floor(Date.now() / 1000),
           ip,

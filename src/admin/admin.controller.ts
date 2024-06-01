@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { AdminService } from './admin.service';
 import { Media } from 'src/schemas/media';
@@ -13,6 +13,15 @@ export class AdminController {
   async getAllUsers(@Req() req: Request): Promise<User[]> {
     const userId: string = req.id;
     return await this.adminService.getAllUsers(userId);
+  }
+
+  @Get('/user/:id')
+  async getUserData(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ): Promise<any> {
+    const userId: string = req.id;
+    return await this.adminService.getUserData(id, userId);
   }
 
   @Get('/media')

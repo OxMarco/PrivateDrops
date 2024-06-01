@@ -6,6 +6,7 @@ import { User, UserSchema } from 'src/schemas/user';
 import { Media, MediaSchema } from 'src/schemas/media';
 import { View, ViewSchema } from 'src/schemas/view';
 import { AwsModule } from 'src/aws/aws.module';
+import { StripeModule } from 'src/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AwsModule } from 'src/aws/aws.module';
       { name: View.name, schema: ViewSchema },
     ]),
     AwsModule,
+    StripeModule,
   ],
   controllers: [AdminController],
   providers: [AdminService],
