@@ -50,6 +50,12 @@ export class StripeService {
           transfer_group: userId,
           capture_method: 'automatic',
         },
+        tax_id_collection: {
+          enabled: false,
+        },
+        invoice_creation: {
+          enabled: false,
+        },
         metadata,
       });
       return session.url;
