@@ -70,6 +70,7 @@ export class AuthService {
       throw new UnauthorizedException({ error: 'User has been banned' });
 
     if (!user.stripeAccountId) {
+      this.logger.log('Creating a new Stripe account for this user');
       try {
         const account = await this.stripeService.createAccount(
           user.id,

@@ -52,6 +52,7 @@ export class WebhookService {
 
   private async processCheckout(event: any) {
     const session = await this.stripeService.retrieve(event, []);
+    this.logger.log(session);
     if (session.payment_status == 'paid') {
       const media = await this.mediaModel
         .findById(session.metadata.mediaId)
@@ -111,13 +112,22 @@ export class WebhookService {
       event.data.object.details_submitted &&
       event.data.object.payouts_enabled
     ) {
-      const user = await this.userModel
-        .findOne({ email: event.data.object.email })
-        .exec();
-      if (!user) throw new NotFoundException({ error: 'User not found' });
+      if (
+        event.data.object.capabilities.card_payments &&
+        event.data.object.capabilities.transfers &&
+        event.data.object.charges_enabled
+      ) {
+        const user = await this.userModel
+          .findOne({ email: event.data.object.email })
+          .exec();
+        if (!user) throw new NotFoundException({ error: 'User not found' });
 
-      user.stripeVerified = true;
-      await user.save();
+        user.stripeVerified = true;
+        await user.save();
+      } else {
+        this.logger.error('Invalid user onboarding');
+        throw new BadRequestException({ error: 'Invalid user onboarding' });
+      }
     }
   }
 }

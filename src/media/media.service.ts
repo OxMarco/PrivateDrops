@@ -119,10 +119,15 @@ export class MediaService {
     createMediaDto: CreateMediaDto,
     userId: string,
   ): Promise<Media> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+    if (!user.stripeVerified)
+      throw new BadRequestException({ error: 'User not verified' });
+
     const { price, singleView } = createMediaDto;
     const parsedPrice = parseInt(price);
     const parsedSingleView = singleView.toLowerCase() === 'true';
-    if (parsedPrice < 99 || parsedPrice > 50000)
+    if (parsedPrice < 500 || parsedPrice > 50000)
       throw new BadRequestException({ error: 'Invalid price' });
 
     const salt = await bcrypt.genSalt();
@@ -144,7 +149,6 @@ export class MediaService {
       blurredUrl = this.configService.get<string>('VIDEO_DEFAULT_BLURRED_URL');
     }
 
-    const user = await this.userModel.findById(userId).exec();
     try {
       const code = new Date().valueOf();
       const media = await this.mediaModel.create({

@@ -33,19 +33,6 @@ export class AdminService {
     return await this.userModel.find().exec();
   }
 
-  async getUserData(id: string, adminId: string) {
-    await this.checkIfAdmin(adminId);
-
-    const user = await this.userModel.findById(id).exec();
-    if (!user) throw new NotFoundException({ error: 'User not found' });
-
-    let taxInfo = {};
-    if (user.stripeAccountId)
-      taxInfo = await this.stripeService.getTaxInfo(user.stripeAccountId);
-
-    return { ...user, taxInfo };
-  }
-
   async getAllMedia(id: string): Promise<Media[]> {
     await this.checkIfAdmin(id);
 

@@ -7,18 +7,27 @@ export class StripeService {
   private readonly logger: Logger;
   private stripe: Stripe;
   private webhookSecret: string;
+  private appFee: number;
 
   constructor(private configService: ConfigService) {
     this.logger = new Logger(StripeService.name);
     this.stripe = new Stripe(configService.get<string>('STRIPE_SECRET_KEY'));
     this.webhookSecret = configService.get<string>('STRIPE_WEBHOOK_SECRET');
+    this.appFee = configService.get<number>('APP_FEE');
   }
 
-  async getTaxInfo(userId: string) {
+  async getUserPayments(stripeAccountId: string) {
     try {
-      return await this.stripe.tax.settings.retrieve({
-        stripeAccount: userId,
+      const balanceInfo = await this.stripe.balance.retrieve({
+        stripeAccount: stripeAccountId,
       });
+      const balanceTransactions = await this.stripe.balanceTransactions.list({
+        stripeAccount: stripeAccountId,
+      });
+      const payouts = await this.stripe.payouts.list({
+        stripeAccount: stripeAccountId,
+      });
+      return { balanceInfo, balanceTransactions, payouts };
     } catch (err) {
       this.logger.error('Stripe error: ', err);
       throw new BadRequestException({
@@ -28,7 +37,8 @@ export class StripeService {
   }
 
   async createCheckoutPage(
-    userId: string,
+    stripeAccountId: string,
+    nickname: string,
     code: string,
     price: number,
     currency: string,
@@ -45,7 +55,7 @@ export class StripeService {
               tax_behavior: 'exclusive',
               currency,
               product_data: {
-                name: 'Media file #' + code,
+                name: 'Media file #' + code + ' shared by user ' + nickname,
                 images: [img],
               },
               unit_amount: price,
@@ -57,17 +67,20 @@ export class StripeService {
         success_url: redirectSuccess,
         cancel_url: redirectCancel,
         automatic_tax: {
-          enabled: false,
-        },
-        payment_intent_data: {
-          transfer_group: userId,
-          capture_method: 'automatic',
+          enabled: true,
         },
         tax_id_collection: {
           enabled: false,
         },
         invoice_creation: {
           enabled: false,
+        },
+        payment_intent_data: {
+          application_fee_amount: price / this.appFee,
+          capture_method: 'automatic',
+          transfer_data: {
+            destination: stripeAccountId,
+          },
         },
         metadata,
       });
@@ -124,7 +137,6 @@ export class StripeService {
           mcc: '5815', // digital_goods_media
           url: `https://privatedrops.me/users/${userId}`,
         },
-        country: 'IT', // TODO get from ip
         tos_acceptance: {
           date: Math.floor(Date.now() / 1000),
           ip,
@@ -136,12 +148,18 @@ export class StripeService {
     }
   }
 
+  async updateAccount(stripeAccountId: string, currency: string) {
+    return await this.stripe.accounts.update(stripeAccountId, {
+      default_currency: currency,
+    });
+  }
+
   async createLink(stripeAccountId: string) {
     try {
       return await this.stripe.accountLinks.create({
         account: stripeAccountId,
-        refresh_url: 'https://privatedrops.me/profile?verification=false',
-        return_url: 'https://privatedrops.me/profile?verification=true',
+        refresh_url: 'https://privatedrops.me/upload?verification=false',
+        return_url: 'https://privatedrops.me/upload?verification=true',
         type: 'account_onboarding',
       });
     } catch (err) {

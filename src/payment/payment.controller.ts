@@ -39,6 +39,12 @@ export class PaymentController {
     return await this.paymentService.getKycLink(userId);
   }
 
+  @Get('/payouts')
+  async getPayoutsInfo(@Req() req: Request): Promise<any> {
+    const userId: string = req.id;
+    return await this.paymentService.getPayoutsInfo(userId);
+  }
+
   @Post('/payout')
   async requestPayout(@Req() req: Request): Promise<string> {
     const userId: string = req.id;

@@ -34,6 +34,13 @@ export class PaymentService {
     return link.url;
   }
 
+  async getPayoutsInfo(userId: string): Promise<any> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+
+    return await this.stripeService.getUserPayments(user.stripeAccountId);
+  }
+
   async verifyPayment(code: string, ip: string): Promise<boolean> {
     const media = await this.mediaModel
       .findOne({ code })
@@ -67,7 +74,8 @@ export class PaymentService {
       throw new BadRequestException({ error: 'Max views reached' });
 
     const url = await this.stripeService.createCheckoutPage(
-      String(media.owner._id),
+      media.owner.stripeAccountId,
+      media.owner.nickname,
       media.code,
       media.price,
       media.owner.currency,

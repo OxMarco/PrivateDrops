@@ -7,12 +7,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { Model } from 'mongoose';
+import { lastValueFrom } from 'rxjs';
 import { ChangeNicknameDto } from 'src/dtos/change-nickname';
 import { ChangeCurrencyDto } from 'src/dtos/change-currency';
 import { UserEntity } from 'src/entities/user';
 import { User } from 'src/schemas/user';
 import { Media } from 'src/schemas/media';
-import { lastValueFrom } from 'rxjs';
+import { StripeService } from 'src/stripe/stripe.service';
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,7 @@ export class UserService {
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
+    private stripeService: StripeService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
   ) {
@@ -85,6 +87,11 @@ export class UserService {
 
     user.currency = changeCurrency.currency;
     await user.save();
+
+    await this.stripeService.updateAccount(
+      user.stripeAccountId,
+      changeCurrency.currency,
+    );
 
     return user;
   }
