@@ -158,8 +158,8 @@ export class StripeService {
     try {
       return await this.stripe.accountLinks.create({
         account: stripeAccountId,
-        refresh_url: 'https://privatedrops.me/upload?verification=false',
-        return_url: 'https://privatedrops.me/upload?verification=true',
+        refresh_url: 'https://privatedrops.me/verified?success=false',
+        return_url: 'https://privatedrops.me/verified?success=true',
         type: 'account_onboarding',
       });
     } catch (err) {
