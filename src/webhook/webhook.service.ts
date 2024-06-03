@@ -40,6 +40,8 @@ export class WebhookService {
         signature,
       );
 
+      this.logger.log('Received a webhook');
+
       if (event.type === 'checkout.session.completed') {
         await this.processCheckout(event);
       } else if (event.type === 'account.updated') {
