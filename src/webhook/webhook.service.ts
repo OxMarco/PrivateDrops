@@ -72,7 +72,7 @@ export class WebhookService {
 
       const user = await this.userModel.findById(media.owner._id).exec();
 
-      const feeInCents = Math.round((media.price * this.appFee) / 100);
+      const feeInCents = (media.price * this.appFee) / 100;
       const payout = media.price - feeInCents;
 
       if (!user) {
