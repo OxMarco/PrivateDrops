@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Ip, Param, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { PaymentService } from './payment.service';
 import { Public } from 'src/decorators/public';
@@ -14,7 +22,7 @@ export class PaymentController {
   @Get('/verify/:code')
   async verifyPayment(
     @Param('code', LowercasePipe) code: string,
-    @Ip() ip: string,
+    @Headers('x-forwarded-for') ip: string,
   ): Promise<boolean> {
     return await this.paymentService.verifyPayment(code, ip);
   }
@@ -23,7 +31,7 @@ export class PaymentController {
   @Post('/checkout')
   async getCheckoutLink(
     @Body() checkoutDto: CheckoutDto,
-    @Ip() ip: string,
+    @Headers('x-forwarded-for') ip: string,
   ): Promise<string> {
     return await this.paymentService.getCheckoutLink(
       checkoutDto.code,

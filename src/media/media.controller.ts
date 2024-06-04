@@ -5,7 +5,6 @@ import {
   FileTypeValidator,
   Get,
   Headers,
-  Ip,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
@@ -77,7 +76,10 @@ export class MediaController {
 
   @Public()
   @Post('/review')
-  async leaveFeedback(@Body() feedbackDto: LeaveFeedbackDto, @Ip() ip: string) {
+  async leaveFeedback(
+    @Body() feedbackDto: LeaveFeedbackDto,
+    @Headers('x-forwarded-for') ip: string,
+  ) {
     return await this.mediaService.leaveFeedback(feedbackDto, ip);
   }
 }
