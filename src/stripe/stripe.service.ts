@@ -165,7 +165,7 @@ export class StripeService {
     } catch (err) {
       this.logger.error('Stripe error: ', err);
       throw new BadRequestException({
-        error: 'KYC link generation unsuccessful',
+        error: 'Onboarding link generation unsuccessful',
       });
     }
   }

@@ -40,8 +40,7 @@ export class WebhookService {
         signature,
       );
 
-      this.logger.log('Received a webhook');
-
+      this.logger.log('Received a webhook', event.type);
       if (event.type === 'checkout.session.completed') {
         await this.processCheckout(event);
       } else if (event.type === 'account.updated') {
@@ -110,26 +109,29 @@ export class WebhookService {
   }
 
   private async processAccountUpdate(event: any) {
+    const user = await this.userModel
+      .findOne({ email: event.data.object.email })
+      .exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+
     if (
-      event.data.object.details_submitted &&
-      event.data.object.payouts_enabled
+      event.data.object.requirements.past_due.length == 0 &&
+      event.data.object.requirements.currently_due.length == 0
     ) {
       if (
         event.data.object.capabilities.card_payments &&
         event.data.object.capabilities.transfers &&
-        event.data.object.charges_enabled
+        event.data.object.charges_enabled &&
+        event.data.object.payouts_enabled
       ) {
-        const user = await this.userModel
-          .findOne({ email: event.data.object.email })
-          .exec();
-        if (!user) throw new NotFoundException({ error: 'User not found' });
-
         user.stripeVerified = true;
-        await user.save();
       } else {
         this.logger.error('Invalid user onboarding');
         throw new BadRequestException({ error: 'Invalid user onboarding' });
       }
+    } else {
+      user.stripeVerified = false;
     }
+    await user.save();
   }
 }
