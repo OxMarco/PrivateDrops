@@ -40,6 +40,11 @@ export class MediaService {
     if (!found) return { userView: null, hasPaid: false };
 
     const userView = await this.viewModel.findById(found._id).exec();
+    if (!userView) return { userView: null, hasPaid: false };
+
+    console.log('ip', ip);
+    console.log('userView', userView);
+
     return { userView, hasPaid: userView.payment };
   }
 

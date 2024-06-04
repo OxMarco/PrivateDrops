@@ -56,7 +56,6 @@ export class WebhookService {
 
   private async processCheckout(event: any) {
     const session = await this.stripeService.retrieve(event, []);
-    this.logger.log(session);
     if (session.payment_status == 'paid') {
       const media = await this.mediaModel
         .findById(session.metadata.mediaId)
