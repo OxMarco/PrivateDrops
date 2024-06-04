@@ -42,13 +42,18 @@ export class WebhookService {
 
       this.logger.log(`Received a webhook: ${event.type}`);
       if (event.type === 'checkout.session.completed') {
+        this.logger.log('Processing checkout');
         await this.processCheckout(event);
+        this.logger.log('Done processing checkout');
       } else if (event.type === 'account.updated') {
+        this.logger.log('Processing account update');
         await this.processAccountUpdate(event);
+        this.logger.log('Done account update');
       }
+      this.logger.log('Done processing webhook');
     } catch (e) {
       this.logger.error('Invalid webhook data received');
-      this.logger.error(e);
+      this.logger.error('Exception', e);
       throw new BadRequestException({ error: 'Invalid webhook data received' });
     }
   }
