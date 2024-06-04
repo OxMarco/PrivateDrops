@@ -127,12 +127,14 @@ export class WebhookService {
         event.data.object.charges_enabled &&
         event.data.object.payouts_enabled
       ) {
+        this.logger.log(`Account ${user.email} onboarded`);
         user.stripeVerified = true;
       } else {
         this.logger.error('Invalid user onboarding');
         throw new BadRequestException({ error: 'Invalid user onboarding' });
       }
     } else {
+      this.logger.warn(`Account ${user.email} NOT onboarded`);
       user.stripeVerified = false;
     }
     await user.save();

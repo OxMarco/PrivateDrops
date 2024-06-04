@@ -25,12 +25,14 @@ export class StripeService {
       const balanceInfo = await this.stripe.balance.retrieve({
         stripeAccount: stripeAccountId,
       });
-      const balanceTransactions = await this.stripe.balanceTransactions.list({
-        stripeAccount: stripeAccountId,
-      });
-      const payouts = await this.stripe.payouts.list({
-        stripeAccount: stripeAccountId,
-      });
+      const balanceTransactions = await this.stripe.balanceTransactions.list(
+        { limit: 5 },
+        { stripeAccount: stripeAccountId },
+      );
+      const payouts = await this.stripe.payouts.list(
+        { limit: 5 },
+        { stripeAccount: stripeAccountId },
+      );
       return { balanceInfo, balanceTransactions, payouts };
     } catch (err) {
       this.logger.error('Stripe error: ', err);

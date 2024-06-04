@@ -14,7 +14,6 @@ export class WebhookController {
     @Req() req: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
   ) {
-    console.log('request rawBody', req.rawBody);
     return await this.webhookService.handleWebhook(
       req.rawBody,
       signature,
@@ -29,7 +28,6 @@ export class WebhookController {
     @Req() req: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
   ) {
-    console.log('request rawBody', req.rawBody);
     return await this.webhookService.handleWebhook(
       req.rawBody,
       signature,
