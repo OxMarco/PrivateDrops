@@ -15,6 +15,25 @@ export class WebhookController {
     @Headers('stripe-signature') signature: string,
   ) {
     console.log('request rawBody', req.rawBody);
-    return await this.webhookService.handleWebhook(req.rawBody, signature);
+    return await this.webhookService.handleWebhook(
+      req.rawBody,
+      signature,
+      false,
+    );
+  }
+
+  @Public()
+  @Post('/connect')
+  @SkipThrottle()
+  async handleConnectWebhook(
+    @Req() req: RawBodyRequest<Request>,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    console.log('request rawBody', req.rawBody);
+    return await this.webhookService.handleWebhook(
+      req.rawBody,
+      signature,
+      true,
+    );
   }
 }

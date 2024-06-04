@@ -7,12 +7,16 @@ export class StripeService {
   private readonly logger: Logger;
   private stripe: Stripe;
   private webhookSecret: string;
+  private webhookConnectSecret: string;
   private appFee: number;
 
   constructor(private configService: ConfigService) {
     this.logger = new Logger(StripeService.name);
     this.stripe = new Stripe(configService.get<string>('STRIPE_SECRET_KEY'));
     this.webhookSecret = configService.get<string>('STRIPE_WEBHOOK_SECRET');
+    this.webhookConnectSecret = configService.get<string>(
+      'STRIPE_WEBHOOK_CONNECT_SECRET',
+    );
     this.appFee = configService.get<number>('APP_FEE');
   }
 
@@ -94,11 +98,12 @@ export class StripeService {
   async processWebhook(
     requestBody: any,
     signature: any,
+    connect: boolean,
   ): Promise<Stripe.Event> {
     return this.stripe.webhooks.constructEvent(
       requestBody,
       signature,
-      this.webhookSecret,
+      connect ? this.webhookConnectSecret : this.webhookSecret,
     );
   }
 
