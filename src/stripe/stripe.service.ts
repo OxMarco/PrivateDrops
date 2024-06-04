@@ -112,6 +112,7 @@ export class StripeService {
     try {
       return await this.stripe.accounts.create({
         email,
+        country: 'IT',
         controller: {
           losses: {
             payments: 'application',
@@ -135,7 +136,7 @@ export class StripeService {
         business_type: 'individual',
         business_profile: {
           mcc: '5815', // digital_goods_media
-          url: `https://privatedrops.me/users/${userId}`,
+          url: `https://privatedrops.me/profile/${userId}`,
         },
         tos_acceptance: {
           date: Math.floor(Date.now() / 1000),

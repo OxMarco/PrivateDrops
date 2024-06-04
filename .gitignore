@@ -21,6 +21,7 @@ lerna-debug.log*
 # Env
 .env
 .env.local
+.env.staging
 .env.production
 
 # IDEs and editors
