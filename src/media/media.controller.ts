@@ -4,6 +4,7 @@ import {
   Delete,
   FileTypeValidator,
   Get,
+  Headers,
   Ip,
   MaxFileSizeValidator,
   Param,
@@ -37,7 +38,7 @@ export class MediaController {
   @Get('/:code')
   async get(
     @Param('code', LowercasePipe) code: string,
-    @Ip() ip: string,
+    @Headers('x-forwarded-for') ip: string,
   ): Promise<MediaEntity> {
     return await this.mediaService.getMedia(code, ip);
   }
