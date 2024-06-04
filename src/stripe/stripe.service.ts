@@ -67,7 +67,7 @@ export class StripeService {
         success_url: redirectSuccess,
         cancel_url: redirectCancel,
         automatic_tax: {
-          enabled: true,
+          enabled: false,
         },
         tax_id_collection: {
           enabled: false,
