@@ -40,14 +40,16 @@ export class WebhookService {
         signature,
       );
 
-      this.logger.log('Received a webhook', event.type);
+      this.logger.log(`Received a webhook: ${event.type}`);
       if (event.type === 'checkout.session.completed') {
         await this.processCheckout(event);
       } else if (event.type === 'account.updated') {
         await this.processAccountUpdate(event);
       }
     } catch (e) {
-      throw new BadRequestException({ error: 'Invalid data provided' });
+      this.logger.error('Invalid webhook data received');
+      this.logger.error(e);
+      throw new BadRequestException({ error: 'Invalid webhook data received' });
     }
   }
 
