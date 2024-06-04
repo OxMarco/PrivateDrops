@@ -49,7 +49,7 @@ export class WebhookService {
       }
     } catch (e) {
       this.logger.error('Invalid webhook data received');
-      this.logger.error('Exception', e);
+      this.logger.error('Request body', requestBody);
       throw new BadRequestException({ error: 'Invalid webhook data received' });
     }
   }

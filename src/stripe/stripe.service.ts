@@ -61,10 +61,7 @@ export class StripeService {
               tax_behavior: 'exclusive',
               currency,
               product_data: {
-                name:
-                  'Media file #' + code + nickname
-                    ? ' shared by user ' + nickname
-                    : '',
+                name: 'Media file #' + code,
                 images: [img],
               },
               unit_amount: price,
