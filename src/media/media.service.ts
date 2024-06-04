@@ -36,13 +36,14 @@ export class MediaService {
   }
 
   private async getUserView(media: Media, ip: string) {
+    console.log('ip', ip);
+
     const found = media.views.find((view) => view.ip === ip);
     if (!found) return { userView: null, hasPaid: false };
 
     const userView = await this.viewModel.findById(found._id).exec();
     if (!userView) return { userView: null, hasPaid: false };
 
-    console.log('ip', ip);
     console.log('userView', userView);
 
     return { userView, hasPaid: userView.payment };
