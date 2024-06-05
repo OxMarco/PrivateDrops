@@ -11,7 +11,6 @@ import { InjectQueue } from '@nestjs/bull';
 import { Model } from 'mongoose';
 import { Queue } from 'bull';
 import { randomBytes } from 'crypto';
-import { StripeService } from 'src/stripe/stripe.service';
 import { LoginDto } from 'src/dtos/login';
 import { User } from 'src/schemas/user';
 import { getLoginMailHtml } from 'src/sendgrid/login.mail';
@@ -22,7 +21,6 @@ export class AuthService {
 
   constructor(
     private jwtService: JwtService,
-    private stripeService: StripeService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectQueue('mail') private mailQueue: Queue,
   ) {
@@ -59,7 +57,7 @@ export class AuthService {
     );
   }
 
-  async login(nonce: string, ip: string): Promise<any> {
+  async login(nonce: string): Promise<any> {
     const user = await this.userModel.findOne({ nonce }).exec();
     if (!user) throw new NotFoundException({ error: 'User not found' });
 
@@ -69,23 +67,7 @@ export class AuthService {
     if (user.banned)
       throw new UnauthorizedException({ error: 'User has been banned' });
 
-    if (!user.stripeAccountId) {
-      this.logger.log('Creating a new Stripe account for this user');
-      try {
-        const account = await this.stripeService.createAccount(
-          user.id,
-          user.email,
-          ip,
-        );
-        user.stripeAccountId = account.id;
-      } catch (err) {
-        this.logger.error('Stripe account creation error', err);
-        throw new BadRequestException({
-          error: 'Stripe account creation error',
-        });
-      }
-    }
-    user.nonceExpiration = new Date(0); // save an invalid date to prevent double login
+    user.nonceExpiration = new Date(0); // save an invalid date to prevent code reuse
     await user.save();
 
     return {

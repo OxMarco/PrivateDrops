@@ -30,6 +30,9 @@ export class PaymentService {
   async getKycLink(userId: string): Promise<string> {
     const user = await this.userModel.findById(userId).exec();
     if (!user) throw new NotFoundException({ error: 'User not found' });
+
+    if (!user.stripeAccountId)
+      throw new BadRequestException({ error: 'Create a Stripe account first' });
     const link = await this.stripeService.createLink(user.stripeAccountId);
     return link.url;
   }
@@ -102,12 +105,5 @@ export class PaymentService {
       user.payouts,
     );
     return response.id;
-  }
-
-  async requestCryptoPayout(userId: string, address: string) {
-    const user = await this.userModel.findById(userId);
-    if (!user) throw new NotFoundException({ error: 'User not found' });
-
-    return address;
   }
 }

@@ -115,11 +115,16 @@ export class StripeService {
     });
   }
 
-  async createAccount(userId: string, email: string, ip: string) {
+  async createAccount(
+    userId: string,
+    email: string,
+    country: string,
+    ip: string,
+  ) {
     try {
       return await this.stripe.accounts.create({
         email,
-        country: 'IT',
+        country,
         controller: {
           losses: {
             payments: 'application',

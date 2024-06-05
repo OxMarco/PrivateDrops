@@ -1,6 +1,7 @@
-import { IsISO4217CurrencyCode } from 'class-validator';
+import { IsISO4217CurrencyCode, IsNotEmpty } from 'class-validator';
 
 export class ChangeCurrencyDto {
   @IsISO4217CurrencyCode()
+  @IsNotEmpty()
   currency: string;
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { UserService } from './user.service';
 import { User } from 'src/schemas/user';
@@ -6,6 +14,7 @@ import { ChangeNicknameDto } from 'src/dtos/change-nickname';
 import { ChangeCurrencyDto } from 'src/dtos/change-currency';
 import { Public } from 'src/decorators/public';
 import { UserEntity } from 'src/entities/user';
+import { CreateStripeAccountDto } from 'src/dtos/create-stripe-account';
 
 @Controller('user')
 export class UserController {
@@ -16,6 +25,21 @@ export class UserController {
     const userId: string = req.id;
 
     return await this.userService.getSelf(userId);
+  }
+
+  @Post('/stripe')
+  async createStripeAccount(
+    @Req() req: Request,
+    @Headers('x-forwarded-for') ip: string,
+    @Body() createStripeAccount: CreateStripeAccountDto,
+  ) {
+    const userId: string = req.id;
+
+    return await this.userService.createStripeAccount(
+      userId,
+      ip,
+      createStripeAccount,
+    );
   }
 
   @Public()

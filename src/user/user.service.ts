@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,9 +15,11 @@ import { UserEntity } from 'src/entities/user';
 import { User } from 'src/schemas/user';
 import { Media } from 'src/schemas/media';
 import { StripeService } from 'src/stripe/stripe.service';
+import { CreateStripeAccountDto } from 'src/dtos/create-stripe-account';
 
 @Injectable()
 export class UserService {
+  private logger: Logger;
   private accessKey: string;
 
   constructor(
@@ -26,6 +29,7 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
   ) {
+    this.logger = new Logger(UserService.name);
     this.accessKey = configService.get<string>('EXCHANGE_RATE_API_KEY');
   }
 
@@ -39,6 +43,7 @@ export class UserService {
       email: user.email,
       payouts: user.payouts,
       ratings: user.ratings,
+      stripeAccountId: user?.stripeAccountId,
       stripeVerified: user.stripeVerified,
       banned: user.banned,
       currency: user.currency,
@@ -62,6 +67,8 @@ export class UserService {
       throw new BadRequestException({ error: 'Nickname already in use' });
 
     const user = await this.userModel.findById(id).exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+
     user.nickname = changeNickname.nickname;
     await user.save();
     return user;
@@ -72,6 +79,8 @@ export class UserService {
     changeCurrency: ChangeCurrencyDto,
   ): Promise<User> {
     const user = await this.userModel.findById(id).exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+
     if (user.currency === changeCurrency.currency) return user;
 
     // update all user media prices converting currencies accordingly
@@ -94,6 +103,36 @@ export class UserService {
     );
 
     return user;
+  }
+
+  async createStripeAccount(
+    id: string,
+    ip: string,
+    createStripeAccount: CreateStripeAccountDto,
+  ) {
+    const user = await this.userModel.findById(id).exec();
+    if (!user) throw new NotFoundException({ error: 'User not found' });
+
+    if (!user.stripeAccountId) {
+      this.logger.log('Creating a new Stripe account for this user');
+      try {
+        const account = await this.stripeService.createAccount(
+          user.id,
+          user.email,
+          createStripeAccount.country,
+          ip,
+        );
+        user.stripeAccountId = account.id;
+        await user.save();
+      } catch (err) {
+        this.logger.error('Stripe account creation error', err);
+        throw new BadRequestException({
+          error: 'Stripe account creation error',
+        });
+      }
+    } else {
+      throw new BadRequestException({ error: 'Account already created' });
+    }
   }
 
   private async convertCurrencyAndRound(

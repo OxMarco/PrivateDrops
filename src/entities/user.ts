@@ -17,6 +17,9 @@ export class UserEntity {
   ratings: number[];
 
   @Expose()
+  stripeAccountId?: string;
+
+  @Expose()
   stripeVerified: boolean;
 
   @Expose()

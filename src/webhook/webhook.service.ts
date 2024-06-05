@@ -48,9 +48,11 @@ export class WebhookService {
         await this.processAccountUpdate(event);
       }
     } catch (e) {
-      this.logger.error('Invalid webhook data received');
-      this.logger.error('Request body', requestBody);
-      throw new BadRequestException({ error: 'Invalid webhook data received' });
+      this.logger.error('Invalid webhook event received', requestBody.id);
+      this.logger.error('Raw request body', requestBody);
+      throw new BadRequestException({
+        error: 'Invalid webhook event received',
+      });
     }
   }
 

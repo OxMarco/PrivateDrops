@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { Recaptcha } from '@nestlab/google-recaptcha';
 import { AuthService } from './auth.service';
 import { LoginDto } from 'src/dtos/login';
@@ -18,10 +18,7 @@ export class AuthController {
 
   @Public()
   @Get('/login/:code')
-  async login(
-    @Param('code') code: string,
-    @Headers('x-forwarded-for') ip: string,
-  ): Promise<User> {
-    return await this.authService.login(code, ip);
+  async login(@Param('code') code: string): Promise<User> {
+    return await this.authService.login(code);
   }
 }
