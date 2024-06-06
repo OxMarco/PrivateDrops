@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,10 +15,11 @@ import { User } from 'src/schemas/user';
 import { Media } from 'src/schemas/media';
 import { StripeService } from 'src/stripe/stripe.service';
 import { CreateStripeAccountDto } from 'src/dtos/create-stripe-account';
+import { SentryLogger } from 'src/sentry-logger';
 
 @Injectable()
 export class UserService {
-  private logger: Logger;
+  private logger: SentryLogger;
   private accessKey: string;
 
   constructor(
@@ -29,7 +29,7 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
   ) {
-    this.logger = new Logger(UserService.name);
+    this.logger = new SentryLogger(UserService.name);
     this.accessKey = configService.get<string>('EXCHANGE_RATE_API_KEY');
   }
 

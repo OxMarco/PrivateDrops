@@ -1,13 +1,14 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailDataRequired, default as SendGrid } from '@sendgrid/mail';
+import { SentryLogger } from 'src/sentry-logger';
 
 @Injectable()
 export class SendgridService {
-  private logger: Logger;
+  private logger: SentryLogger;
 
   constructor(private configService: ConfigService) {
-    this.logger = new Logger(SendgridService.name);
+    this.logger = new SentryLogger(SendgridService.name);
     const apiKey = this.configService.get<string>('SENDGRID_API_KEY');
     SendGrid.setApiKey(apiKey);
   }

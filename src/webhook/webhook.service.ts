@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
@@ -15,10 +14,11 @@ import { getPaymentMailHtml } from 'src/sendgrid/payment.mail';
 import { Media } from 'src/schemas/media';
 import { User } from 'src/schemas/user';
 import { View } from 'src/schemas/view';
+import { SentryLogger } from 'src/sentry-logger';
 
 @Injectable()
 export class WebhookService {
-  private logger: Logger;
+  private logger: SentryLogger;
   private appFee: number;
 
   constructor(
@@ -29,7 +29,7 @@ export class WebhookService {
     @InjectModel(Media.name) private mediaModel: Model<Media>,
     @InjectModel(View.name) private viewModel: Model<View>,
   ) {
-    this.logger = new Logger(PaymentService.name);
+    this.logger = new SentryLogger(PaymentService.name);
     this.appFee = configService.get<number>('APP_FEE');
   }
 

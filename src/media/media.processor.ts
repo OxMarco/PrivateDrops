@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
@@ -8,18 +7,19 @@ import { Job } from 'bull';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import { Media } from 'src/schemas/media';
+import { SentryLogger } from 'src/sentry-logger';
 import { MediaFileJob } from './media.t';
 
 @Processor('media')
 export class MediaProcessor {
-  private logger: Logger;
+  private logger: SentryLogger;
 
   constructor(
     private readonly httpService: HttpService,
     private configService: ConfigService,
     @InjectModel(Media.name) private mediaModel: Model<Media>,
   ) {
-    this.logger = new Logger(MediaProcessor.name);
+    this.logger = new SentryLogger(MediaProcessor.name);
   }
 
   @Process()
@@ -47,14 +47,17 @@ export class MediaProcessor {
         ),
     );
     if (this.checkForMinor(response)) {
-      this.logger.warn('This media contains underage people');
+      this.logger.error(
+        'This media may contain underage people',
+        job.data.mediaId,
+      );
 
       const media = await this.mediaModel
         .findById(data.mediaId)
         .populate('owner')
         .exec();
       if (!media) {
-        this.logger.error('Media not found', job.data);
+        this.logger.error('Media not found', job.data.mediaId);
         return;
       }
 

@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -19,10 +18,11 @@ import { Media } from 'src/schemas/media';
 import { CreateMediaDto } from 'src/dtos/create-media';
 import { MediaEntity } from 'src/entities/media';
 import { LeaveFeedbackDto } from 'src/dtos/leave-feedback';
+import { SentryLogger } from 'src/sentry-logger';
 
 @Injectable()
 export class MediaService {
-  private logger: Logger;
+  private logger: SentryLogger;
 
   constructor(
     private configService: ConfigService,
@@ -32,7 +32,7 @@ export class MediaService {
     @InjectModel(View.name) private viewModel: Model<View>,
     @InjectQueue('media') private mediaQueue: Queue,
   ) {
-    this.logger = new Logger(MediaService.name);
+    this.logger = new SentryLogger(MediaService.name);
   }
 
   private async getUserView(media: Media, ip: string) {

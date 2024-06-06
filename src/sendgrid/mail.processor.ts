@@ -1,6 +1,6 @@
-import { Logger } from '@nestjs/common';
 import { Processor, Process, OnQueueError } from '@nestjs/bull';
 import { Job } from 'bull';
+import { SentryLogger } from 'src/sentry-logger';
 import { SendgridService } from './sendgrid.service';
 
 type MailJob = {
@@ -12,10 +12,10 @@ type MailJob = {
 
 @Processor('mail')
 export class MailProcessor {
-  private logger: Logger;
+  private logger: SentryLogger;
 
   constructor(private sendgridService: SendgridService) {
-    this.logger = new Logger(MailProcessor.name);
+    this.logger = new SentryLogger(MailProcessor.name);
   }
 
   @Process()

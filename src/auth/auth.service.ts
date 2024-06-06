@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -14,17 +13,18 @@ import { randomBytes } from 'crypto';
 import { LoginDto } from 'src/dtos/login';
 import { User } from 'src/schemas/user';
 import { getLoginMailHtml } from 'src/sendgrid/login.mail';
+import { SentryLogger } from 'src/sentry-logger';
 
 @Injectable()
 export class AuthService {
-  private logger: Logger;
+  private logger: SentryLogger;
 
   constructor(
     private jwtService: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectQueue('mail') private mailQueue: Queue,
   ) {
-    this.logger = new Logger(AuthService.name);
+    this.logger = new SentryLogger(AuthService.name);
   }
 
   async generateNonce(loginDto: LoginDto): Promise<any> {
