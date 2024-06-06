@@ -2,7 +2,8 @@ services:
   mongo:
     image: "mongo:latest"
     container_name: mongo
-    restart: always
+    restart: unless-stopped
+    command: --quiet
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongoadmin
       MONGO_INITDB_ROOT_PASSWORD: mongopassword
@@ -13,7 +14,7 @@ services:
   redis:
     image: "redis:latest"
     container_name: redis
-    restart: always
+    restart: unless-stopped
     volumes:
       - redis_data_container:/data/redis
     environment:
@@ -26,6 +27,7 @@ services:
     build: .
     stop_signal: SIGTERM
     stop_grace_period: 200s
+    restart: unless-stopped
     environment:
       JWT_SECRET: "${JWT_SECRET}"
       APP_FEE: "${APP_FEE}"
