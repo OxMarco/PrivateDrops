@@ -3,6 +3,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
 import { TerminusModule } from '@nestjs/terminus';
 import { GoogleRecaptchaModule } from '@nestlab/google-recaptcha';
@@ -16,7 +17,6 @@ import { AwsModule } from './aws/aws.module';
 import { AdminModule } from './admin/admin.module';
 import { SendgridModule } from './sendgrid/sendgrid.module';
 import { PaymentModule } from './payment/payment.module';
-import { BullModule } from '@nestjs/bull';
 import { WebhookModule } from './webhook/webhook.module';
 
 @Module({

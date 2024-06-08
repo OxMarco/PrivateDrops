@@ -139,7 +139,7 @@ export class MediaService {
     const originalUrl = await this.awsService.uploadFile(file, originalName);
     let blurredUrl: string;
     if (file.mimetype.includes('image')) {
-      const blurredBuffer = await sharp(file.buffer).blur(30).toBuffer();
+      const blurredBuffer = await sharp(file.buffer).blur(75).toBuffer();
       const blurredFile = {
         originalname: blurredName,
         buffer: blurredBuffer,
