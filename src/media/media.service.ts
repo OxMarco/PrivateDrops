@@ -23,6 +23,7 @@ import { SentryLogger } from 'src/sentry-logger';
 @Injectable()
 export class MediaService {
   private logger: SentryLogger;
+  private blur: number;
 
   constructor(
     private configService: ConfigService,
@@ -33,6 +34,7 @@ export class MediaService {
     @InjectQueue('media') private mediaQueue: Queue,
   ) {
     this.logger = new SentryLogger(MediaService.name);
+    this.blur = this.configService.get<number>('BLUR');
   }
 
   private async getUserView(media: Media, ip: string) {
@@ -139,7 +141,7 @@ export class MediaService {
     const originalUrl = await this.awsService.uploadFile(file, originalName);
     let blurredUrl: string;
     if (file.mimetype.includes('image')) {
-      const blurredBuffer = await sharp(file.buffer).blur(65).toBuffer();
+      const blurredBuffer = await sharp(file.buffer).blur(this.blur).toBuffer();
       const blurredFile = {
         originalname: blurredName,
         buffer: blurredBuffer,

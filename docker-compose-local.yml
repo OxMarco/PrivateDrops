@@ -32,6 +32,7 @@ services:
     environment:
       JWT_SECRET: "${JWT_SECRET}"
       APP_FEE: "${APP_FEE}"
+      BLUR: "${BLUR}"
       VIDEO_DEFAULT_BLURRED_URL: "${VIDEO_DEFAULT_BLURRED_URL}"
       DATABASE_URL: "mongodb://mongoadmin:mongopassword@mongo:27017/nestjsdb?authSource=admin"
       REDIS_HOST: "redis"
